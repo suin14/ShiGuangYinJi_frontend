@@ -1,96 +1,65 @@
 <template>
   <div class="editor-container">
-    <input type="text" class="article-title" v-model="title" placeholder="标题" />
-    <QuillEditor ref="myQuillEditor"
-                 theme="snow"
-                 v-model:content="content"
-                 :options="data.editorOption"
-                 contentType="html"
-                 @update:content="setValue()"
-    />
-    <input type="file" hidden accept=".jpg,.png" ref="fileBtn" @change="handleUpload" />
-    <button @click="startRecognition" class="btn-mic">
-      <img :src="isListening ? loadingIcon : micIcon" alt="语音识别" />
-    </button>
+    <input type="text" class="article-title" placeholder="标题" />
+
+    <QuillEditor ref="quillEditor" content-type="html" v-model:content="content" :options="editorOption" />
   </div>
 </template>
 
 <script setup>
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import { reactive, onMounted, ref, toRaw, watch } from 'vue'
+import { ref, reactive, onMounted, watchEffect, toRaw } from 'vue';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import micIcon from '@/assets/icon/mic.svg';
-import loadingIcon from '@/assets/icon/loading.svg';
 
-const props = defineProps(['value'])
-const emit = defineEmits(['updateValue'])
-const content = ref('')
-const myQuillEditor = ref()
-watch(() => props.value, (val) => {
-  toRaw(myQuillEditor.value).setHTML(val)
-}, { deep: true })
+const props = defineProps({
+  value: {
+    type: String,
+    default: '',
+  },
+});
 
-const fileBtn = ref()
-const data = reactive({
-  content: '',
-  editorOption: {
-    modules: {
-      toolbar: [
+const emit = defineEmits(['update:value']);
+
+const content = ref(props.value);
+const isListening = ref(false);
+const quillEditor = ref(null);
+
+const startRecognition = () => {
+  if (isListening.value) return;
+  console.log("开始语音识别...");
+  recognition.start();
+  isListening.value = true;
+};
+
+const editorOption = reactive({
+  modules: {
+    toolbar: {
+      container: [
         ['bold', 'italic', 'underline', 'strike'],
-        [{ 'size': ['small', false, 'large', 'huge'] }],
-        [{ 'font': [] }],
-        [{ 'align': [] }],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ size: ['small', false, 'large', 'huge'] }],
+        [{ font: [] }],
+        [{ align: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
         ['link', 'blockquote', 'code-block', 'image'],
-        [{ 'color': [] }, { 'background': [] }]
-      ]
+        [{ color: [] }, { background: [] }],
+        ['speech'],
+      ],
+      handlers: {
+        speech: startRecognition,
+      },
     },
-    placeholder: '请输入内容...'
-  }
-})
+  },
+  placeholder: '请输入内容...',
+  theme: 'snow',
+});
 
-const imgHandler = (state) => {
-  if (state) {
-    fileBtn.value.click()
-  }
-}
-
-const setValue = () => {
-  const text = toRaw(myQuillEditor.value).getHTML()
-  emit('updateValue', text)
-}
-
-const handleUpload = async (e) => {
-  const files = Array.from(e.target.files)
-  if (!files.length) {
-    return
-  }
-  const formdata = new FormData()
-  formdata.append('file', files[0])
-
-  try {
-    const response = await fetch('IMAGE_UPLOAD_URL', {
-      method: 'POST',
-      body: formdata
-    });
-    const result = await response.json();
-
-    if (result.url) {
-      const quill = toRaw(myQuillEditor.value).getQuill()
-      const length = quill.getSelection().index
-      quill.insertEmbed(length, 'image', result.url)
-      quill.setSelection(length + 1)
-    } else {
-      console.error('上传失败:', result.message);
-    }
-  } catch (error) {
-    console.error('上传错误:', error);
-  }
-}
+// 内容有变化时更新内容，将值返回给父组件
+watchEffect(() => {
+  emit('update:value', content.value);
+});
 
 let recognition;
-const transcript = ref('');
-const isListening = ref(false);
 
 onMounted(() => {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -106,8 +75,8 @@ onMounted(() => {
   recognition.maxAlternatives = 1;
 
   recognition.addEventListener('result', (event) => {
-    transcript.value = event.results[0][0].transcript;
-    insertTextToQuill(transcript.value);
+    const transcript = event.results[0][0].transcript;
+    insertTextToQuill(transcript);
   });
 
   recognition.addEventListener('end', () => {
@@ -120,29 +89,32 @@ onMounted(() => {
   });
 });
 
-const startRecognition = () => {
-  if (isListening.value) return;
-  recognition.start();
-  isListening.value = true;
-  transcript.value = '';
-};
-
 const insertTextToQuill = (text) => {
-  const quill = toRaw(myQuillEditor.value).getQuill();
-  const length = quill.getSelection().index;
+  const quill = toRaw(quillEditor.value.getQuill());
+  const length = quill.getSelection()?.index || 0;
   quill.insertText(length, text);
   quill.setSelection(length + text.length);
 };
-
-onMounted(() => {
-  const quill = toRaw(myQuillEditor.value).getQuill();
-  if (myQuillEditor.value) {
-    quill.getModule('toolbar').addHandler('image', imgHandler);
-  }
-});
 </script>
 
 <style scoped lang="scss">
+:deep(.ql-toolbar .ql-speech) {
+  width: 24px;
+  height: 22px;
+  background-image: url('@/assets/icon/mic.svg');
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  border-radius: 30%;
+}
+
+.mic-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0 5px; /* 可以根据需要调整间距 */
+}
+
 .editor-container {
   position: relative;
 }
@@ -174,6 +146,7 @@ onMounted(() => {
   align-items: center;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
+  background-color: transparent;
 }
 
 .btn-mic:hover {
@@ -181,9 +154,11 @@ onMounted(() => {
   transform: scale(1.1);
 }
 
-.btn-mic img {
-  width: 25px;
-  height: auto;
+.mic-icon {
+  width: 30px;  /* 调整图标大小 */
+  height: 30px; /* 调整图标大小 */
+  max-width: 100%; /* 确保图标不超出其容器 */
+  max-height: 100%; /* 确保图标不超出其容器 */
 }
 
 .article-title {
