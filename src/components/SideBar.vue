@@ -129,7 +129,7 @@ ul li {
 }
 
 ul li.active {
-  background-color: rgb(222, 222, 222);
+  background-color: rgba(123, 145, 128, 1);
   border-top-left-radius: 50px;
   border-bottom-left-radius: 50px;
 }
@@ -142,7 +142,7 @@ ul li.active::before {
   top: -20px;
   right: 5px;
   border-bottom-right-radius: 20px;
-  box-shadow: 5px 5px 0 5px rgb(222, 222, 222);
+  box-shadow: 5px 5px 0 5px rgba(123, 145, 128, 1);;
   background: transparent;
 }
 
@@ -154,7 +154,7 @@ ul li.active::after {
   bottom: -20px;
   right: 5px;
   border-top-right-radius: 20px;
-  box-shadow: 5px -5px 0 5px rgb(222, 222, 222);
+  box-shadow: 5px -5px 0 5px rgba(123, 145, 128, 1);;
   background: transparent;
 }
 
@@ -181,7 +181,7 @@ ul li.active a .icon::before {
   position: absolute;
   inset: 5px;
   width: 55px;
-  background: rgba(123, 145, 128, 0.74);
+  background: white;
   border-radius: 50%;
   transition: 0.5s;
   z-index: -100;

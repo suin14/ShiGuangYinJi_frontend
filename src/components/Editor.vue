@@ -10,7 +10,6 @@
 import { ref, reactive, onMounted, watchEffect, toRaw } from 'vue';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
-import micIcon from '@/assets/icon/mic.svg';
 
 const props = defineProps({
   value: {
@@ -54,7 +53,6 @@ const editorOption = reactive({
   theme: 'snow',
 });
 
-// 内容有变化时更新内容，将值返回给父组件
 watchEffect(() => {
   emit('update:value', content.value);
 });
@@ -109,12 +107,6 @@ const insertTextToQuill = (text) => {
   border-radius: 30%;
 }
 
-.mic-icon {
-  width: 20px;
-  height: 20px;
-  margin: 0 5px; /* 可以根据需要调整间距 */
-}
-
 .editor-container {
   position: relative;
 }
@@ -131,34 +123,6 @@ const insertTextToQuill = (text) => {
 :deep(.ql-formats) {
   height: 21px;
   line-height: 21px;
-}
-
-.btn-mic {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-  background-color: transparent;
-}
-
-.btn-mic:hover {
-  background-color: #444343;
-  transform: scale(1.1);
-}
-
-.mic-icon {
-  width: 30px;  /* 调整图标大小 */
-  height: 30px; /* 调整图标大小 */
-  max-width: 100%; /* 确保图标不超出其容器 */
-  max-height: 100%; /* 确保图标不超出其容器 */
 }
 
 .article-title {
