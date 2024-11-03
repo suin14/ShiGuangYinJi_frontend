@@ -113,7 +113,7 @@ const insertTextToQuill = (text) => {
 
 :deep(.ql-editor) {
   border: 1.1px solid #ccc;
-  min-height: 560px;
+  height: 73vh;
   background-color: #f6f6f6;
 }
 :deep(.ql-toolbar) {

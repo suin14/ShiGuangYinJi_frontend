@@ -51,7 +51,7 @@
         <li>
           <a href="#">
             <div class="icon">
-              <img src="@/assets/icon/quit.svg" alt="" />
+              <img src="@/assets/icon/logout.svg" alt="" />
             </div>
             <div class="text">登出</div>
           </a>
@@ -98,6 +98,7 @@ function setActiveItem(item) {
   overflow: hidden;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
+  box-shadow: 2px 2px 10px rgb(128, 128, 128);
 }
 
 .sidebar.closed {
@@ -196,11 +197,12 @@ ul li a .text, .name {
   height: 60px;
   display: flex;
   align-items: center;
-  font-size: 1.1em;
-  color: #242424;
+  font-size: 1.2em;
+  color: #363636;
   padding-left: 15px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: bold;
 }
 
 .name {
