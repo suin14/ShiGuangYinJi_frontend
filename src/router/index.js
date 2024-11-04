@@ -3,22 +3,31 @@ import { createRouter, createWebHashHistory } from "vue-router";
 const routes = [
     {
         path: '/',
-        redirect:'/home'
+        redirect: '/index'
     },
     {
         path: '/',
-        name: 'Home',
-        component:()=>import('@/views/View.vue'),
+        component: () => import('@/views/View.vue'),
         children: [
             {
-                path:'/home',
+                path: 'index',
                 name: '首页',
-                component:()=>import('@/views/EditorPage.vue')
+                component: () => import('@/views/HomePage.vue')
             },
-
+            {
+                path: 'editor',
+                name: '文档编辑器',
+                component: () => import('@/views/EditorPage.vue')
+            },
+            {
+                path: 'user',
+                name: '个人主页',
+                component: () => import('@/views/UserPage.vue')
+            },
         ]
     }
-]
+];
+
 
 const router = createRouter ({
     history: createWebHashHistory(),

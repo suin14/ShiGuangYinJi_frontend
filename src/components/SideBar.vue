@@ -7,54 +7,44 @@
     <div class="head" style="--bg: #333;">
       <ul>
         <li>
-          <a href="#">
             <div class="icon">
               <img src="@/assets/vue.svg" alt="" />
             </div>
             <div class="name">Website</div>
-          </a>
         </li>
       </ul>
     </div>
 
     <div class="menu-list">
       <ul>
-        <li @click="setActiveItem('home')" :class="{ active: activeItem === 'home' }">
-          <a href="#">
+        <li @click="setActiveItem('index', '/index')" :class="{ active: activeItem === 'index' }">
             <div class="icon">
               <img src="@/assets/icon/home.svg" alt="" />
             </div>
             <div class="text">主页</div>
-          </a>
         </li>
-        <li @click="setActiveItem('create')" :class="{ active: activeItem === 'create' }">
-          <a href="#">
+        <li @click="setActiveItem('editor', '/editor')" :class="{ active: activeItem === 'editor' }">
             <div class="icon">
               <img src="@/assets/icon/edit.svg" alt="" />
             </div>
             <div class="text">创作</div>
-          </a>
         </li>
       </ul>
     </div>
 
     <div class="bottom">
       <ul>
-        <li>
-          <a href="#">
+        <li @click="setActiveItem('', '/user')">
             <div class="icon">
-              <div class="avatar"></div>
+              <div class="avatar" ></div>
             </div>
             <div class="text">UserName</div>
-          </a>
         </li>
         <li>
-          <a href="#">
             <div class="icon">
               <img src="@/assets/icon/logout.svg" alt="" />
             </div>
             <div class="text">登出</div>
-          </a>
         </li>
       </ul>
     </div>
@@ -63,21 +53,26 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const isSidebarClosed = ref(true);
-const activeItem = ref('home'); // 默认激活的菜单项为 home
+const activeItem = ref('index');
 
 function openSidebar() {
-  isSidebarClosed.value = false; // 鼠标悬浮时打开侧边栏
+  isSidebarClosed.value = false;
 }
 
 function closeSidebar() {
-  isSidebarClosed.value = true; // 鼠标离开时关闭侧边栏
+  isSidebarClosed.value = true;
 }
 
-function setActiveItem(item) {
-  activeItem.value = item; // 设置激活的菜单项
+function setActiveItem(item, link) {
+  activeItem.value = item;
+  router.push(link).catch(err => console.error(err));
 }
+
+
 </script>
 
 <style scoped>
@@ -99,6 +94,7 @@ function setActiveItem(item) {
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   box-shadow: 2px 2px 10px rgb(128, 128, 128);
+  user-select: none;
 }
 
 .sidebar.closed {
@@ -127,6 +123,10 @@ ul {
 ul li {
   position: relative;
   list-style: none;
+  display: flex;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 ul li.active {
@@ -159,14 +159,7 @@ ul li.active::after {
   background: transparent;
 }
 
-ul li a {
-  position: relative;
-  display: flex;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-ul li a .icon {
+ul li .icon {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -175,9 +168,10 @@ ul li a .icon {
   font-size: 1.5em;
   transition: 0.5s;
   padding-left: 5px;
+  cursor: pointer;
 }
 
-ul li.active a .icon::before {
+ul li.active .icon::before {
   content: '';
   position: absolute;
   inset: 5px;
@@ -188,12 +182,13 @@ ul li.active a .icon::before {
   z-index: -100;
 }
 
-ul li a .icon img {
+ul li .icon img {
   width: 35px;
   height: auto;
+  cursor: pointer;
 }
 
-ul li a .text, .name {
+ul li .text, .name {
   height: 60px;
   display: flex;
   align-items: center;
@@ -209,7 +204,7 @@ ul li a .text, .name {
   font-size: 1.2em;
 }
 
-ul li:hover a .text {
+ul li:hover .text {
   color: rgba(1, 50, 12, 0.74);
 }
 
@@ -233,5 +228,6 @@ ul li:hover a .text {
   background-image: url('@/assets/icon/avatar.jpg');
   background-size: cover;
   background-position: center;
+  cursor: pointer;
 }
 </style>
