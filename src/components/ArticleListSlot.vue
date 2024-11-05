@@ -5,10 +5,10 @@
 <template>
   <div class="showBoard">
     <div class="leftBoard">
-      <img class="leftBoardImg" src="@/assets/icon/file.svg" alt=""></img>
+      <img class="leftBoardImg" src="@/assets/icon/file.svg" alt="">
     </div>
     <div class="rightBoard">
-      <div class="title">文章标题11111111</div>
+      <div class="title">文章标题</div>
       <div class="time"><span>2024-11-3</span></div>
     </div>
   </div>

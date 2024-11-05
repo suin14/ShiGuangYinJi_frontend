@@ -7,7 +7,7 @@
     <div class="head" style="--bg: #333;">
       <ul>
         <li>
-            <div class="icon">
+            <div class="logo">
               <img src="@/assets/vue.svg" alt="" />
             </div>
             <div class="name">Website</div>
@@ -17,17 +17,23 @@
 
     <div class="menu-list">
       <ul>
-        <li @click="setActiveItem('index', '/index')" :class="{ active: activeItem === 'index' }">
+        <li @click="setActiveItem('首页', '/index')" :class="{ active: activeItem === '首页' }">
             <div class="icon">
               <img src="@/assets/icon/home.svg" alt="" />
             </div>
             <div class="text">主页</div>
         </li>
-        <li @click="setActiveItem('editor', '/editor')" :class="{ active: activeItem === 'editor' }">
+        <li @click="setActiveItem('编辑器', '/editor')" :class="{ active: activeItem === '编辑器' }">
             <div class="icon">
               <img src="@/assets/icon/edit.svg" alt="" />
             </div>
             <div class="text">创作</div>
+        </li>
+        <li @click="setActiveItem('通知', '/message')" :class="{ active: activeItem === '通知' }">
+          <div class="icon">
+            <img src="@/assets/icon/message.svg" alt="" />
+          </div>
+          <div class="text">通知</div>
         </li>
       </ul>
     </div>
@@ -40,7 +46,7 @@
             </div>
             <div class="text">UserName</div>
         </li>
-        <li>
+        <li @click="setActiveItem('', '/login')">
             <div class="icon">
               <img src="@/assets/icon/logout.svg" alt="" />
             </div>
@@ -57,7 +63,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const isSidebarClosed = ref(true);
-const activeItem = ref('index');
+const activeItem = ref('首页');
 
 function openSidebar() {
   isSidebarClosed.value = false;
@@ -69,7 +75,7 @@ function closeSidebar() {
 
 function setActiveItem(item, link) {
   activeItem.value = item;
-  router.push(link).catch(err => console.error(err));
+  router.push({ path: link });
 }
 
 
@@ -81,6 +87,7 @@ function setActiveItem(item, link) {
   padding: 0;
   box-sizing: border-box;
   z-index: 1000;
+  font-family: 'ShangGuB', sans-serif;
 }
 
 .sidebar {
@@ -130,7 +137,7 @@ ul li {
 }
 
 ul li.active {
-  background-color: rgba(123, 145, 128, 1);
+  background-color: #899a8c;
   border-top-left-radius: 50px;
   border-bottom-left-radius: 50px;
 }
@@ -143,7 +150,7 @@ ul li.active::before {
   top: -20px;
   right: 5px;
   border-bottom-right-radius: 20px;
-  box-shadow: 5px 5px 0 5px rgba(123, 145, 128, 1);;
+  box-shadow: 5px 5px 0 5px #899a8c;
   background: transparent;
 }
 
@@ -155,11 +162,12 @@ ul li.active::after {
   bottom: -20px;
   right: 5px;
   border-top-right-radius: 20px;
-  box-shadow: 5px -5px 0 5px rgba(123, 145, 128, 1);;
+  box-shadow: 5px -5px 0 5px #899a8c;
   background: transparent;
 }
 
-ul li .icon {
+ul li .icon,
+.logo {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -182,10 +190,18 @@ ul li.active .icon::before {
   z-index: -100;
 }
 
-ul li .icon img {
+ul li:hover .icon img,
+ul li:hover .icon .avatar,
+ul li:hover .text {
+  transform: scale(1.1);
+}
+
+ul li .icon img,
+.logo img {
   width: 35px;
   height: auto;
   cursor: pointer;
+  transition: transform 0.3s ease-in-out;
 }
 
 ul li .text, .name {
@@ -197,7 +213,7 @@ ul li .text, .name {
   padding-left: 15px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: bold;
+  transition: transform 0.3s ease-in-out;
 }
 
 .name {
@@ -205,7 +221,7 @@ ul li .text, .name {
 }
 
 ul li:hover .text {
-  color: rgba(1, 50, 12, 0.74);
+  color: #3d493f;
 }
 
 .menu-list {
@@ -229,5 +245,6 @@ ul li:hover .text {
   background-size: cover;
   background-position: center;
   cursor: pointer;
+  transition: transform 0.3s ease-in-out;
 }
 </style>

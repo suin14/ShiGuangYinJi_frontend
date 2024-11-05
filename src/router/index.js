@@ -24,6 +24,21 @@ const routes = [
                 name: '个人主页',
                 component: () => import('@/views/UserPage.vue')
             },
+            {
+                path: 'admin',
+                name: '管理员',
+                component: () => import('@/views/AdminPage.vue')
+            },
+            {
+                path: 'login',
+                name: '登录',
+                component: () => import('@/views/Login.vue')
+            },
+            {
+                path: 'message',
+                name: '通知',
+                component: () => import('@/views/Message.vue')
+            },
         ]
     }
 ];

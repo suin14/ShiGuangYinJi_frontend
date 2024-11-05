@@ -24,4 +24,7 @@ import SideBar from "@/components/SideBar.vue";
   left: 0;
   z-index: 1000;
 }
+* {
+  font-family: 'ShangGuM', sans-serif;
+}
 </style>
