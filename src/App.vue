@@ -15,4 +15,8 @@
   font-family: 'ShangGuB';
   src: url('@/assets/fonts/ShangguRoundSC-Bold.ttf') format('truetype');
 }
+@font-face {
+  font-family: 'ChangErFeiBai';
+  src: url('@/assets/fonts/仓耳非白W03.ttf') format('truetype');
+}
 </style>

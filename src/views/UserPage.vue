@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import Calendar from "@/components/Calendar.vue";
 const currentView = ref('我的');
 const router = useRouter();
 
@@ -26,7 +27,9 @@ function gotoAdmin() {
         <span @click="switchView('收藏')" :class="{ active: currentView === '收藏' }">收藏</span>
       </div>
       <div class="left-box-content">
-        <div v-if="currentView === '我的'">我发布的文章</div>
+        <div v-if="currentView === '我的'">
+          <Calendar />
+        </div>
         <div v-if="currentView === '草稿箱'">草稿箱</div>
         <div v-if="currentView === '回收站'">回收站</div>
         <div v-if="currentView === '收藏'">我收藏过的文章</div>

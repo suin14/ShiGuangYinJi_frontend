@@ -10,7 +10,7 @@
             <div class="logo">
               <img src="@/assets/vue.svg" alt="" />
             </div>
-            <div class="name">Website</div>
+            <div class="name">时光日记</div>
         </li>
       </ul>
     </div>
@@ -19,22 +19,40 @@
       <ul>
         <li @click="setActiveItem('首页', '/index')" :class="{ active: activeItem === '首页' }">
             <div class="icon">
-              <img src="@/assets/icon/home.svg" alt="" />
+              <img src="@/assets/icon/home.svg" alt="首页" />
             </div>
             <div class="text">主页</div>
         </li>
         <li @click="setActiveItem('编辑器', '/editor')" :class="{ active: activeItem === '编辑器' }">
             <div class="icon">
-              <img src="@/assets/icon/edit.svg" alt="" />
+              <img src="@/assets/icon/edit.svg" alt="编辑器" />
             </div>
             <div class="text">创作</div>
         </li>
         <li @click="setActiveItem('通知', '/message')" :class="{ active: activeItem === '通知' }">
           <div class="icon">
-            <img src="@/assets/icon/message.svg" alt="" />
+            <img src="@/assets/icon/message.svg" alt="通知" />
           </div>
           <div class="text">通知</div>
         </li>
+        <li @click="setActiveItem('兴趣组', '/')" :class="{ active: activeItem === '兴趣组' }">
+          <div class="icon">
+            <img src="@/assets/icon/group.svg" alt="兴趣组" />
+          </div>
+          <div class="text">兴趣组</div>
+        </li>
+        <li @click="setActiveItem('智能体', '/')" :class="{ active: activeItem === '智能体' }">
+          <div class="icon">
+            <img src="@/assets/icon/ai.svg" alt="智能体" />
+          </div>
+          <div class="text">智能写作</div>
+        </li>
+<!--        <li @click="setActiveItem('知识库', '/')" :class="{ active: activeItem === '知识库' }">-->
+<!--          <div class="icon">-->
+<!--            <img src="@/assets/icon/knowledgebase.svg" alt="知识库" />-->
+<!--          </div>-->
+<!--          <div class="text">知识库</div>-->
+<!--        </li>-->
       </ul>
     </div>
 
@@ -217,7 +235,8 @@ ul li .text, .name {
 }
 
 .name {
-  font-size: 1.2em;
+  font-size: 1.7em;
+  font-family: ChangErFeiBai, sans-serif;
 }
 
 ul li:hover .text {

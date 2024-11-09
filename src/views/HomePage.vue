@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import ArticleList from "@/components/ArticleList.vue";
 
 const searchInput = ref('');
 
@@ -45,7 +44,10 @@ function clearInput() {
         <span @click="switchView('关注')" :class="{ active: currentView === '关注' }">关注</span>
       </div>
       <div class="navi-content">
-        <div v-if="currentView === '推荐'"><ArticleList/></div>
+        <div v-if="currentView === '推荐'">
+          // 用瀑布流插入卡片
+
+        </div>
         <div v-if="currentView === '关注'">关注用户动态</div>
       </div>
     </div>
