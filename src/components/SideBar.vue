@@ -35,13 +35,13 @@
           </div>
           <div class="text">通知</div>
         </li>
-        <li @click="setActiveItem('兴趣组', '/')" :class="{ active: activeItem === '兴趣组' }">
+        <li @click="setActiveItem('兴趣组', '/groups')" :class="{ active: activeItem === '兴趣组' }">
           <div class="icon">
             <img src="@/assets/icon/group.svg" alt="兴趣组" />
           </div>
           <div class="text">兴趣组</div>
         </li>
-        <li @click="setActiveItem('智能体', '/')" :class="{ active: activeItem === '智能体' }">
+        <li @click="setActiveItem('智能体', '/agent')" :class="{ active: activeItem === '智能体' }">
           <div class="icon">
             <img src="@/assets/icon/ai.svg" alt="智能体" />
           </div>
@@ -62,7 +62,7 @@
             <div class="icon">
               <div class="avatar" ></div>
             </div>
-            <div class="text">UserName</div>
+            <div class="text">我的</div>
         </li>
         <li @click="setActiveItem('', '/login')">
             <div class="icon">

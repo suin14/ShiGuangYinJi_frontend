@@ -39,6 +39,16 @@ const routes = [
                 name: '通知',
                 component: () => import('@/views/Message.vue')
             },
+            {
+                path: 'groups',
+                name: '兴趣组',
+                component: () => import('@/views/GroupsPage.vue')
+            },
+            {
+                path: 'agent',
+                name: '智能写作',
+                component: () => import('@/views/AgentPage.vue')
+            },
         ]
     }
 ];
