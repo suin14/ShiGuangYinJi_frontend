@@ -1,17 +1,114 @@
 <script setup>
-import { ref } from 'vue';
+import {ref, onMounted, onUpdated, nextTick, onBeforeUnmount} from 'vue';
+import HomeCard from "@/components/HomeCard.vue";
+import vueImage from '@/assets/test1.png';
+import testImage from '@/assets/icon/avatar.jpg';
+import avatarImage from '@/assets/icon/avatar.jpg';
 
 const searchInput = ref('');
-
 const currentView = ref('推荐');
+
+const cards = ref([
+  {
+    imageSrc: vueImage,
+    title: '欢迎来到主页',
+    userAvatar: avatarImage,
+    userName: 'Momo'
+  },
+  {
+    imageSrc: testImage,
+    title: '开发者社区',
+    userAvatar: avatarImage,
+    userName: '张三'
+  },
+  {
+    imageSrc: vueImage,
+    title: 'Vue 3 教程',
+    userAvatar: avatarImage,
+    userName: '李四'
+  },
+  {
+    imageSrc: testImage,
+    title: 'JavaScript 学习',
+    userAvatar: avatarImage,
+    userName: '王五'
+  },
+  {
+    imageSrc: vueImage,
+    title: '欢迎来到主页',
+    userAvatar: avatarImage,
+    userName: 'Momo'
+  },
+  {
+    imageSrc: testImage,
+    title: '开发者社区',
+    userAvatar: avatarImage,
+    userName: '张三'
+  },
+  {
+    imageSrc: vueImage,
+    title: 'Vue 3 教程',
+    userAvatar: avatarImage,
+    userName: '李四'
+  },
+  {
+    imageSrc: testImage,
+    title: 'JavaScript 学习',
+    userAvatar: avatarImage,
+    userName: '王五'
+  }
+]);
 
 const switchView = (view) => {
   currentView.value = view;
 };
 
-function clearInput() {
+const clearInput = () => {
   searchInput.value = '';
-}
+};
+
+const setCardHeights = () => {
+  nextTick(() => {
+    const cards = document.querySelectorAll('.waterfall-item');
+    const container = document.querySelector('.waterfall');
+    const columnCount = Math.floor(container.offsetWidth / 250);
+    const columns = Array(columnCount).fill(0);
+
+    cards.forEach(card => {
+      const minColumnHeight = Math.min(...columns);
+      const index = columns.indexOf(minColumnHeight);
+
+      card.style.top = `${minColumnHeight}px`;
+      card.style.left = `${index * 300}px`;
+
+      columns[index] += card.offsetHeight + 20;
+    });
+  });
+};
+
+// 页面加载后调整瀑布流布局
+onMounted(() => {
+  setCardHeights();
+  
+  window.onload = () => {
+    setCardHeights();  // 确保在页面加载完成后执行瀑布流布局计算
+  };
+
+  // 监听窗口大小变化时，重新调整瀑布流布局
+  window.addEventListener('resize', setCardHeights);
+});
+
+// 监听视图切换，重新调整瀑布流布局
+onUpdated(() => {
+  if (currentView.value === '推荐') {
+    setCardHeights();
+  }
+});
+
+// 在组件销毁时，移除事件监听
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', setCardHeights);
+});
 </script>
 
 <template>
@@ -24,11 +121,7 @@ function clearInput() {
           v-model="searchInput"
       />
       <div class="input-button">
-        <div
-            class="close-icon"
-            v-if="searchInput"
-            @click="clearInput"
-        >
+        <div class="close-icon" v-if="searchInput" @click="clearInput">
           <img src="@/assets/icon/close.svg" alt="关闭" />
         </div>
         <div class="search-icon">
@@ -43,22 +136,43 @@ function clearInput() {
         <span> | </span>
         <span @click="switchView('关注')" :class="{ active: currentView === '关注' }">关注</span>
       </div>
-      <div class="navi-content">
-        <div v-if="currentView === '推荐'">
-          // 用瀑布流插入卡片
 
+      <div class="navi-content">
+        <div v-if="currentView === '推荐'" class="waterfall">
+          <HomeCard
+              v-for="(card, index) in cards"
+              :key="index"
+              :imageSrc="card.imageSrc"
+              :title="card.title"
+              :userAvatar="card.userAvatar"
+              :userName="card.userName"
+              class="waterfall-item"
+          />
         </div>
-        <div v-if="currentView === '关注'">关注用户动态</div>
+
+        <div v-if="currentView === '关注'">
+          关注用户动态
+        </div>
       </div>
     </div>
-
   </div>
-
 </template>
 
 <style scoped>
 .content {
   margin-top: 4vh;
+}
+
+.waterfall {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+.waterfall-item {
+  width: 220px;
+  position: absolute;
 }
 
 .top-navi {
@@ -67,7 +181,7 @@ function clearInput() {
   user-select: none;
 }
 
-.top-navi span{
+.top-navi span {
   font-size: 1.3em;
 }
 
@@ -119,23 +233,24 @@ function clearInput() {
   align-items: center;
   height: 100%;
   padding: 0 20px;
+}
 
-  .close-icon img,
-  .search-icon img {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    padding-left: 10px;
-    padding-top: 5px;
+.close-icon img,
+.search-icon img {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  padding-left: 10px;
+  padding-top: 5px;
+}
 
-    &:hover {
-      transform: scale(1.1);
-    }
-  }
+.close-icon img:hover,
+.search-icon img:hover {
+  transform: scale(1.1);
 }
 
 .navi-content {
-width: 150vh;
+  width: 150vh;
 }
 </style>
