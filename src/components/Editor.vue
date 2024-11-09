@@ -17,10 +17,13 @@
 
     <div v-if="showDialog" class="dialog-overlay">
       <div class="dialog-box">
+        <button class="close-btn" @click="closeDialog">
+          <img src="@/assets/icon/close.svg" alt="关闭" />
+        </button>
         <p>请选择文章状态：</p>
-        <button @click="selectOption('public')">公开(所有用户可见)</button>
-        <button @click="selectOption('private')">私密(仅自己可见)</button>
-        <button :disabled="!selectedOption" @click="confirmSubmit">确认</button>
+        <button class="dialog-btn" @click="selectOption('public')">公开(所有用户可见)</button>
+        <button class="dialog-btn" @click="selectOption('private')">私密(仅自己可见)</button>
+        <button class="dialog-btn" :disabled="!selectedOption" @click="confirmSubmit">确认</button>
       </div>
     </div>
   </div>
@@ -124,6 +127,10 @@ const openDialog = () => {
   showDialog.value = true;
 };
 
+const closeDialog = () => {
+  showDialog.value = false;
+};
+
 const selectOption = (option) => {
   selectedOption.value = option;
 };
@@ -199,6 +206,7 @@ const discard = () => {
   align-items: center;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
+  outline: none;
 }
 
 .btn-icon:hover {
@@ -243,13 +251,18 @@ const discard = () => {
   text-align: left;
 }
 
-.dialog-box button {
+.dialog-box p {
+  margin-top: -20px;
+}
+
+.dialog-box .dialog-btn {
   margin: 5px 0;
   padding: 10px 20px;
   border: none;
   cursor: pointer;
   border-radius: 5px;
   background-color: #3d493f;
+  outline: none;
 }
 
 .dialog-box button:disabled {
@@ -257,5 +270,21 @@ const discard = () => {
   cursor: not-allowed;
 }
 
+.close-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: right;
+  outline: none;
+}
 
+.close-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.close-btn:hover img {
+  opacity: 0.8;
+}
 </style>
