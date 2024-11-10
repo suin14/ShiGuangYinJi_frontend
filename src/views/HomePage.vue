@@ -59,6 +59,8 @@ const cards = ref([
   }
 ]);
 
+const topics= ref(['冬日摄影', '考研']);
+
 const switchView = (view) => {
   currentView.value = view;
 };
@@ -89,7 +91,7 @@ const setCardHeights = () => {
 // 页面加载后调整瀑布流布局
 onMounted(() => {
   setCardHeights();
-  
+
   window.onload = () => {
     setCardHeights();  // 确保在页面加载完成后执行瀑布流布局计算
   };
@@ -133,8 +135,15 @@ onBeforeUnmount(() => {
     <div class="content">
       <div class="top-navi">
         <span @click="switchView('推荐')" :class="{ active: currentView === '推荐' }">推荐</span>
-        <span> | </span>
         <span @click="switchView('关注')" :class="{ active: currentView === '关注' }">关注</span>
+        <span
+            v-for="(t, index) in topics"
+            :key="index"
+            @click="switchView(t)"
+            :class="{ active: currentView === t }"
+        >
+          {{ t }}
+        </span>
       </div>
 
       <div class="navi-content">
@@ -179,16 +188,22 @@ onBeforeUnmount(() => {
   margin-bottom: 3vh;
   cursor: pointer;
   user-select: none;
+  display: flex;
+  gap: 10px;
 }
 
 .top-navi span {
   font-size: 1.3em;
+  padding: 5px 15px;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
 }
 
 .active {
   font-weight: bold;
   color: #213547;
   font-family: 'ShangGuB', sans-serif;
+  background-color: #f0f0f0;
 }
 
 .input-box {

@@ -145,6 +145,7 @@ function gotoAdmin() {
 .btn-admin:hover {
   background-color: #444343;
   transform: scale(1.1);
+  outline: none;
 }
 
 .btn-admin span{
