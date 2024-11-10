@@ -1,8 +1,8 @@
 <script setup>
 import {ref, onMounted, onUpdated, nextTick, onBeforeUnmount} from 'vue';
 import HomeCard from "@/components/HomeCard.vue";
-import vueImage from '@/assets/test1.png';
-import testImage from '@/assets/icon/avatar.jpg';
+import vueImage from '@/assets/vue.svg';
+import testImage from "@/assets/test.jpg";
 import avatarImage from '@/assets/icon/avatar.jpg';
 
 const searchInput = ref('');

@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
-import vueImage from "@/assets/test1.png";
+import vueImage from "@/assets/vue.svg";
 import avatarImage from "@/assets/icon/avatar.jpg";
-import testImage from "@/assets/icon/avatar.jpg";
+import testImage from "@/assets/test.jpg";
 import addIcon from '@/assets/icon/add.svg';
 
 const currentView = ref('审核');
@@ -47,7 +47,7 @@ const topics = ref([
 ]);
 
 const currentPage = ref(1);
-const pageSize = ref(3);
+const pageSize = ref(5);
 const totalPages = computed(() => Math.ceil(cards.value.length / pageSize.value));
 
 const paginatedCards = computed(() => {
@@ -342,4 +342,6 @@ const prevPage = () => {
   background-color: #ff1a1a;
   outline: none;
 }
+
+
 </style>

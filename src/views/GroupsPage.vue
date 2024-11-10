@@ -2,7 +2,7 @@
 import {ref} from "vue";
 import GroupsCard from "@/components/GroupsCard.vue";
 import groupIcon from '@/assets/icon/group.svg';
-import vueImage from "@/assets/test1.png";
+import vueImage from "@/assets/vue.svg";
 import avatarImage from "@/assets/icon/avatar.jpg";
 import testImage from "@/assets/icon/avatar.jpg";
 
@@ -102,7 +102,7 @@ const clearInput = () => {
   searchInput.value = '';
 };
 
-const showForm = ref(false);  // 控制表格的显示/隐藏
+const showForm = ref(false);
 const newGroup = ref({
   name: '',
   image: null,
