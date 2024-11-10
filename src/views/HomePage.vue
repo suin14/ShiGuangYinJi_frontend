@@ -213,7 +213,7 @@ onBeforeUnmount(() => {
   font-size: 16px;
   color: #333;
   caret-color: rgba(1, 50, 12, 0.74);
-  background: rgba(0, 0, 0, 0.03);
+  background: #fff;
   border: none;
   outline: none;
   border-radius: 999px;
@@ -225,7 +225,7 @@ onBeforeUnmount(() => {
 }
 
 .search-input:focus {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #fff;
 }
 
 .input-button {
