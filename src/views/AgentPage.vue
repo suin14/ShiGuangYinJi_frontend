@@ -9,7 +9,7 @@ const newMessage = ref('');
 
 const sendMessage = () => {
   if (newMessage.value.trim()) {
-    messages.value.push({ text: newMessage.value, sender: '用户' });
+    messages.value.push({ text: newMessage.value, sender: '我' });
     newMessage.value = '';
   }
 };
@@ -23,11 +23,11 @@ const sendMessage = () => {
             v-for="(message, index) in messages"
             :key="index"
             class="message"
-            :class="{'user-message': message.sender === '用户', 'system-message': message.sender !== '用户'}"
+            :class="{'user-message': message.sender === '我', 'system-message': message.sender !== '我'}"
         >
           <div>
             <strong>
-              <span v-if="message.sender !== '用户'">
+              <span v-if="message.sender !== '我'">
                 {{ message.sender }} :
               </span>
               <span v-else>
