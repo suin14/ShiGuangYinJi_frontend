@@ -15,7 +15,6 @@ const sendMessage = () => {
 };
 </script>
 
-
 <template>
   <div class="container">
     <div class="box">
@@ -27,7 +26,14 @@ const sendMessage = () => {
             :class="{'user-message': message.sender === '用户', 'system-message': message.sender !== '用户'}"
         >
           <div>
-            <strong>{{ message.sender }}</strong>
+            <strong>
+              <span v-if="message.sender !== '用户'">
+                {{ message.sender }} :
+              </span>
+              <span v-else>
+                : {{ message.sender }}
+              </span>
+            </strong>
           </div>
           <div>{{ message.text }}</div>
         </div>
@@ -51,8 +57,6 @@ const sendMessage = () => {
     </div>
   </div>
 </template>
-
-
 
 <style scoped>
 .container {
@@ -100,7 +104,7 @@ const sendMessage = () => {
 }
 
 .system-message {
-  background-color: #bbd0fa;
+  background-color: #d1dcd2;
   border-bottom-left-radius: 10px;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
