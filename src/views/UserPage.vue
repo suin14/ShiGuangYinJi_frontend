@@ -222,8 +222,11 @@ const handleAvatarChange = (event) => {
   font-size: 1.3em;
 }
 
+.top-navi span:hover {
+  color: #213547;
+}
+
 .active {
-  font-weight: bold;
   color: #213547;
   font-family: 'ShangGuB', sans-serif;
 }

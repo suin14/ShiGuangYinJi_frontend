@@ -168,6 +168,10 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+* {
+  user-select: none;
+}
+
 .content {
   margin-top: 4vh;
 }
