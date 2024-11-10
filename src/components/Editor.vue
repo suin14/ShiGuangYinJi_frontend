@@ -3,6 +3,7 @@
     <input type="text" class="article-title" placeholder="标题" />
 
     <QuillEditor ref="quillEditor" content-type="html" v-model:content="content" :options="editorOption" />
+
     <div class="btn-container">
       <button @click="openDialog" class="btn-icon">
         <img :src="commitIcon" alt="提交" />
@@ -27,6 +28,7 @@
       </div>
     </div>
   </div>
+
 </template>
 
 
@@ -37,6 +39,8 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import commitIcon from '@/assets/icon/commit.svg';
 import saveIcon from '@/assets/icon/save.svg';
 import deleteIcon from '@/assets/icon/delete.svg';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const props = defineProps({
   value: {
@@ -60,6 +64,39 @@ const startRecognition = () => {
   isListening.value = true;
 };
 
+const exportToPDF = async () => {
+  // 功能实现有问题
+  if (!quillEditor.value) {
+    console.error('Quill editor is not initialized');
+    return;
+  }
+
+  const quill = quillEditor.value.getQuill();  // 获取 Quill 实例
+  if (!quill) {
+    console.error('Quill instance is not available');
+    return;
+  }
+
+  const content = quill.root.innerHTML;  // 获取 Quill 编辑器的 HTML 内容
+
+  // 使用 html2canvas 渲染编辑器内容为图像
+  const canvas = await html2canvas(quill.root, {
+    allowTaint: true,  // 允许跨域图片渲染
+    useCORS: true,     // 尝试使用 CORS 加载外部图片
+    backgroundColor: 'transparent',
+  });
+
+  const imgData = canvas.toDataURL('image/png');  // 转换为 PNG 格式图像数据
+
+  const doc = new jsPDF();
+
+  // 将图像数据添加到 PDF 中
+  doc.addImage(imgData, 'PNG', 10, 10, canvas.width * 0.2, canvas.height * 0.2);  // 调整图像大小和位置
+
+  doc.save('.pdf');
+};
+
+
 const editorOption = reactive({
   modules: {
     toolbar: {
@@ -71,10 +108,11 @@ const editorOption = reactive({
         [{ align: [] }],
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['blockquote', 'code-block'],
-        ['speech', 'image'],
+        ['speech', 'image', 'video', 'export'],
       ],
       handlers: {
         speech: startRecognition,
+        export: exportToPDF
       },
     },
   },
@@ -89,6 +127,13 @@ watchEffect(() => {
 let recognition;
 
 onMounted(() => {
+  if (quillEditor.value) {
+    const quill = quillEditor.value.getQuill();
+    if (quill) {
+      console.log('Quill editor initialized');
+    }
+  }
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
@@ -162,6 +207,17 @@ const discard = () => {
   border-radius: 30%;
 }
 
+:deep(.ql-toolbar .ql-export) {
+  width: 24px;
+  height: 22px;
+  background-image: url('@/assets/icon/export.svg');
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  border-radius: 30%;
+}
+
 .editor-container {
   position: relative;
 }
@@ -170,6 +226,7 @@ const discard = () => {
   border: 1.1px solid #ccc;
   height: 72vh;
   background-color: #f6f6f6;
+  width: 126vh;
 }
 :deep(.ql-toolbar) {
   border: 1.1px solid #ccc;

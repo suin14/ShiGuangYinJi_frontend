@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@vueup/vue-quill": "^1.2.0",
+    "html-docx-js": "^0.3.1",
+    "html2canvas": "^1.4.1",
     "html2json": "^1.0.2",
+    "jspdf": "^2.5.2",
     "quill": "latest",
     "quill-delta": "^5.1.0",
     "quill-image-drop-module": "latest",
