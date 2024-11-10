@@ -65,13 +65,13 @@ const editorOption = reactive({
     toolbar: {
       container: [
         ['bold', 'italic', 'underline', 'strike'],
+        [{ color: [] }, { background: [] }],
         [{ size: ['small', false, 'large', 'huge'] }],
         [{ font: [] }],
         [{ align: [] }],
         [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'blockquote', 'code-block', 'image'],
-        [{ color: [] }, { background: [] }],
-        ['speech'],
+        ['blockquote', 'code-block'],
+        ['speech', 'image'],
       ],
       handlers: {
         speech: startRecognition,
