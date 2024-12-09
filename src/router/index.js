@@ -49,6 +49,11 @@ const routes = [
                 name: '智能写作',
                 component: () => import('@/views/AgentPage.vue')
             },
+            {
+                path: 'card',
+                name: '文章页面',
+                component: () => import('@/views/ArticlePage.vue')
+            },
         ]
     }
 ];

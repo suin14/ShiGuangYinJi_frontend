@@ -1,18 +1,45 @@
 <script setup>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
+import {AichatStart, AichatAsk} from "@/api/api.js";
 
-const messages = ref([
-  { text: '你好！', sender: '系统' },
-]);
+const messages = ref([]);
 
-const newMessage = ref('');
+const inputMessage = ref('');
 
-const sendMessage = () => {
-  if (newMessage.value.trim()) {
-    messages.value.push({ text: newMessage.value, sender: '我' });
-    newMessage.value = '';
+let cid = ref('');
+
+const sendMessage = async () => {
+  if (inputMessage.value.trim()) {
+    const msg = inputMessage.value;
+    messages.value.push({ text: msg, sender: '我' });
+    inputMessage.value = '';
+
+    try {
+      const res = await AichatAsk(msg, 'void', cid.value);
+      // console.log(res)
+      if (res && res.msg) {
+        messages.value.push({ text: res.msg, sender: '张伟' });
+        cid.value = res.conversation_id;
+      } else {
+        console.error('没有收到有效的响应');
+      }
+    } catch (error) {
+      console.error('请求失败:', error);
+    }
   }
 };
+
+onMounted(async () => {
+  try {
+    const res = await AichatStart();
+    if (res && res.msg) {
+      messages.value.push({ text: res.msg, sender: '张伟' });
+      cid.value = res.cid || '';
+    }
+  } catch (error) {
+    console.error("请求失败:", error);
+  }
+});
 </script>
 
 <template>
@@ -41,7 +68,7 @@ const sendMessage = () => {
 
       <div class="input-area">
         <input
-            v-model="newMessage"
+            v-model="inputMessage"
             @keyup.enter="sendMessage"
             type="text"
             placeholder="输入消息..."
@@ -89,7 +116,7 @@ const sendMessage = () => {
 
 .message {
   padding: 5px;
-  margin: 10px 0;
+  margin: 15px 0;
   word-wrap: break-word;
   white-space: pre-wrap;
 }
@@ -161,6 +188,20 @@ const sendMessage = () => {
 .upload-btn:hover,
 .send-btn:hover {
   transform: scale(1.1);
+}
+
+.message-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.message-list::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 10px;
+}
+
+.message-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 </style>
 

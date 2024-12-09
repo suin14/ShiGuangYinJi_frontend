@@ -1,6 +1,7 @@
 <script setup>
 import {ref, onMounted, onUpdated, nextTick, onBeforeUnmount} from 'vue';
 import HomeCard from "@/components/HomeCard.vue";
+import CardDetail from "@/components/CardDetail.vue";
 import vueImage from '@/assets/vue.svg';
 import testImage from "@/assets/test.jpg";
 import avatarImage from '@/assets/icon/avatar.jpg';
@@ -13,51 +14,60 @@ const cards = ref([
     imageSrc: vueImage,
     title: '欢迎来到主页',
     userAvatar: avatarImage,
-    userName: 'Momo'
+    userName: 'Momo',
+    content: '欢迎来到我们的网站，这是一个汇聚了最新资讯和实用教程的地方，期待您的到来！'
   },
   {
     imageSrc: testImage,
     title: '开发者社区',
     userAvatar: avatarImage,
-    userName: '张三'
+    userName: '张三',
+    content: '这里是开发者社区，我们致力于为开发者提供一个互相学习、共同进步的交流平台。'
   },
   {
     imageSrc: vueImage,
     title: 'Vue 3 教程',
     userAvatar: avatarImage,
-    userName: '李四'
+    userName: '李四',
+    content: '在这篇文章中，我们将介绍 Vue 3 的基本用法以及如何构建更高效的前端应用程序。'
   },
   {
     imageSrc: testImage,
     title: 'JavaScript 学习',
     userAvatar: avatarImage,
-    userName: '王五'
+    userName: '王五',
+    content: 'JavaScript 是现代 Web 开发的基石。本教程将帮助您掌握从基础到高级的 JavaScript 技巧。'
   },
   {
     imageSrc: vueImage,
     title: '欢迎来到主页',
     userAvatar: avatarImage,
-    userName: 'Momo'
+    userName: 'Momo',
+    content: '欢迎来到我们的网站，这是一个汇聚了最新资讯和实用教程的地方，期待您的到来！'
   },
   {
     imageSrc: testImage,
     title: '开发者社区',
     userAvatar: avatarImage,
-    userName: '张三'
+    userName: '张三',
+    content: '这里是开发者社区，我们致力于为开发者提供一个互相学习、共同进步的交流平台。'
   },
   {
     imageSrc: vueImage,
     title: 'Vue 3 教程',
     userAvatar: avatarImage,
-    userName: '李四'
+    userName: '李四',
+    content: '在这篇文章中，我们将介绍 Vue 3 的基本用法以及如何构建更高效的前端应用程序。'
   },
   {
     imageSrc: testImage,
     title: 'JavaScript 学习',
     userAvatar: avatarImage,
-    userName: '王五'
+    userName: '王五',
+    content: 'JavaScript 是现代 Web 开发的基石。本教程将帮助您掌握从基础到高级的 JavaScript 技巧。'
   }
 ]);
+
 
 const topics= ref(['冬日摄影', '考研']);
 
@@ -71,12 +81,12 @@ const clearInput = () => {
 
 const setCardHeights = () => {
   nextTick(() => {
-    const cards = document.querySelectorAll('.waterfall-item');
+    const cardElements = document.querySelectorAll('.waterfall-item');
     const container = document.querySelector('.waterfall');
     const columnCount = Math.floor(container.offsetWidth / 250);
     const columns = Array(columnCount).fill(0);
 
-    cards.forEach(card => {
+    cardElements.forEach(card => {
       const minColumnHeight = Math.min(...columns);
       const index = columns.indexOf(minColumnHeight);
 
@@ -97,7 +107,11 @@ onMounted(() => {
   };
 
   // 监听窗口大小变化时，重新调整瀑布流布局
-  window.addEventListener('resize', setCardHeights);
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(setCardHeights, 200);
+  });
 });
 
 // 监听视图切换，重新调整瀑布流布局
@@ -111,6 +125,19 @@ onUpdated(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', setCardHeights);
 });
+
+const showDetail = ref(false); // 控制弹窗显示
+const selectedCard = ref(null); // 当前选中的卡片
+
+const openCardDetail = (card) => {
+  selectedCard.value = card;
+  showDetail.value = true;
+};
+
+const closeCardDetail = () => {
+  showDetail.value = false;
+  selectedCard.value = null;
+};
 </script>
 
 <template>
@@ -121,6 +148,7 @@ onBeforeUnmount(() => {
           class="search-input"
           placeholder="搜索..."
           v-model="searchInput"
+          @keyup.enter=""
       />
       <div class="input-button">
         <div class="close-icon" v-if="searchInput" @click="clearInput">
@@ -156,12 +184,20 @@ onBeforeUnmount(() => {
               :userAvatar="card.userAvatar"
               :userName="card.userName"
               class="waterfall-item"
+              @click="openCardDetail(card)"
           />
         </div>
 
         <div v-if="currentView === '关注'">
           关注用户动态
         </div>
+
+        <CardDetail
+            v-if="showDetail"
+            :cardData="selectedCard"
+            :isVisible="showDetail"
+            @close="closeCardDetail"
+        />
       </div>
     </div>
   </div>
