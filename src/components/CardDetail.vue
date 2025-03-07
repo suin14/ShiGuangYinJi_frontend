@@ -39,8 +39,9 @@
             <ul>
               <li v-for="(comment, index) in comments" :key="index" class="comment-item">
                 <img :src="comment.userAvatar" alt="用户头像" class="comment-avatar" />
+                <span class="comment-user-name">{{ comment.userName }}</span>
                 <div class="comment-content">
-                  <span class="comment-user-name">{{ comment.userName }}</span>
+
                   <p class="comment-text">{{ comment.content }}</p>
                 </div>
               </li>
@@ -55,6 +56,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import vueImage from '@/assets/vue.svg';
 
 const props = defineProps({
   cardData: Object,
@@ -70,12 +72,12 @@ const isFollowing = ref(false);
 const comments = ref([
   {
     userName: 'Alice',
-    userAvatar: 'path/to/alice-avatar.jpg',
+    userAvatar: vueImage,
     content: '这是一个很有帮助的文章！'
   },
   {
     userName: 'Bob',
-    userAvatar: 'path/to/bob-avatar.jpg',
+    userAvatar: vueImage,
     content: '感谢分享！非常有用。'
   }
   // 其他评论数据

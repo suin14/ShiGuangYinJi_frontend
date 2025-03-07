@@ -38,15 +38,18 @@
         <div class="comments-section">
           <ul>
             <li v-for="(comment, index) in comments" :key="index" class="comment-item">
-              <img :src="comment.userAvatar" alt="用户头像" class="comment-avatar" />
               <div class="comment-content">
-                <span class="comment-user-name">{{ comment.userName }}</span>
+                <div class="comment-header">
+                  <img :src="comment.userAvatar" alt="用户头像" class="comment-avatar" />
+                  <span class="comment-user-name">{{ comment.userName }}</span>
+                </div>
                 <p class="comment-text">{{ comment.content }}</p>
               </div>
             </li>
           </ul>
-          <input type="text" v-model="newComment" placeholder="添加评论..." @keyup.enter="addComment" />
+
         </div>
+        <input type="text" v-model="newComment" placeholder="添加评论..." @keyup.enter="addComment" />
       </div>
     </div>
   </div>
@@ -231,19 +234,29 @@ const addComment = () => {
   margin-right: 10px;
 }
 
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 头像和用户名之间的间距 */
+}
+
 .comment-content {
   max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .comment-user-name {
-
+  font-weight: bold;
 }
 
 .comment-text {
   margin-top: 5px;
+  word-wrap: break-word;
 }
 
-.comments-section input {
+.text-section input {
   width: 95%;
   padding: 8px;
   margin-top: 10px;

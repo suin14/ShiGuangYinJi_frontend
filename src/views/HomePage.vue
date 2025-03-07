@@ -5,6 +5,7 @@ import CardDetail from "@/components/CardDetail.vue";
 import vueImage from '@/assets/vue.svg';
 import testImage from "@/assets/test.jpg";
 import avatarImage from '@/assets/icon/avatar.jpg';
+import router from "@/router/index.js";
 
 const searchInput = ref('');
 const currentView = ref('推荐');
@@ -138,6 +139,10 @@ const closeCardDetail = () => {
   showDetail.value = false;
   selectedCard.value = null;
 };
+
+function gotoArticle() {
+  router.push({ path: '/card' });
+}
 </script>
 
 <template>
@@ -184,8 +189,9 @@ const closeCardDetail = () => {
               :userAvatar="card.userAvatar"
               :userName="card.userName"
               class="waterfall-item"
-              @click="openCardDetail(card)"
+              @click="gotoArticle"
           />
+          <!--@click="openCardDetail(card)"-->
         </div>
 
         <div v-if="currentView === '关注'">
