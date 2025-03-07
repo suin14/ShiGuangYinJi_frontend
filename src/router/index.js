@@ -53,7 +53,7 @@ const routes = [
                 path: 'card',
                 name: '文章页面',
                 component: () => import('@/views/ArticlePage.vue')
-            },
+            }
         ]
     }
 ];
