@@ -10,7 +10,9 @@ const messages = ref([
     content: '这篇文章真好，感谢分享！',
     articleTitle: 'Vue3 入门教程',
     message: '收藏了你的文章',
-    avatarUrl: avatarImage
+    avatarUrl: avatarImage,
+    showReplyInput: false, // 控制是否显示回复输入框
+    replyText: ''
   },
   {
     userName: '小红',
@@ -18,16 +20,29 @@ const messages = ref([
     content: '很有帮助，学习了！',
     articleTitle: 'Vue3 入门教程',
     message: '赞了你的文章',
-    avatarUrl: avatarImage
+    avatarUrl: avatarImage,
+    showReplyInput: false,
+    replyText: ''
   }
 ]);
 
 const switchView = (view) => {
   currentView.value = view;
+
+  // 关闭所有回复输入框
+  messages.value.forEach((message) => {
+    message.showReplyInput = false;
+  });
 };
 
-const replyToComment = (comment) => {
-  console.log(`回复评论: ${comment.userName}`);
+const toggleReplyInput = (index) => {
+  messages.value[index].showReplyInput = !messages.value[index].showReplyInput;
+};
+
+const submitReply = (index) => {
+  console.log(`回复 ${messages.value[index].userName}: ${messages.value[index].replyText}`);
+  messages.value[index].replyText = ''; // 发送后清空输入框
+  messages.value[index].showReplyInput = false; // 隐藏输入框
 };
 </script>
 
@@ -41,6 +56,7 @@ const replyToComment = (comment) => {
         <span> | </span>
         <span @click="switchView('关注')" :class="{ active: currentView === '关注' }">新增关注</span>
       </div>
+
       <div class="left-box-content">
         <div v-if="currentView === '评论'" v-for="(message, index) in messages" :key="index" class="comment-item">
           <div class="comment-header">
@@ -54,35 +70,20 @@ const replyToComment = (comment) => {
             <p>{{ message.content }}</p>
             <span class="article-title">{{ message.articleTitle }}</span>
           </div>
-          <div class="reply-btn" @click="replyToComment(message)">
+          <div class="reply-btn" @click="toggleReplyInput(index)">
             <img src="@/assets/icon/reply.svg" alt="回复" />
           </div>
-        </div>
 
-        <div v-if="currentView === '赞收藏'" v-for="(message, index) in messages" :key="index" class="comment-item">
-          <div class="comment-header">
-            <div class="left-side">
-              <img :src="message.avatarUrl" alt="头像" class="avatar" />
-              <strong>{{ message.userName }}</strong>
+          <!-- 回复输入框 -->
+          <div v-if="message.showReplyInput" class="reply-input">
+            <input
+                v-model="message.replyText"
+                type="text"
+                placeholder="输入你的回复..."
+            />
+            <div class="send-btn">
+              <img src="@/assets/icon/send.svg" alt="发送" @click="submitReply(index)"/>
             </div>
-            <span class="comment-time">{{ message.time }}</span>
-          </div>
-          <div class="comment-body">
-            <p>{{ message.message }}</p>
-            <span class="article-title">{{ message.articleTitle }}</span>
-          </div>
-        </div>
-
-        <div v-if="currentView === '关注'" v-for="(message, index) in messages" :key="index" class="comment-item">
-          <div class="comment-header">
-            <div class="left-side">
-              <img :src="message.avatarUrl" alt="头像" class="avatar" />
-              <strong>{{ message.userName }}</strong>
-            </div>
-            <span class="comment-time">{{ message.time }}</span>
-          </div>
-          <div class="comment-body">
-            <p>关注了你！</p>
           </div>
         </div>
       </div>
@@ -91,6 +92,7 @@ const replyToComment = (comment) => {
 </template>
 
 <style scoped>
+/* 容器 */
 .container {
   display: flex;
   width: 188vh;
@@ -210,5 +212,37 @@ const replyToComment = (comment) => {
   border-radius: 50%;
   margin-right: 10px;
   margin-left: 10px;
+}
+
+/* 回复输入框 */
+.reply-input {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.reply-input input {
+  width: 95%;
+  padding: 8px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #242424;
+  outline: none;
+}
+
+.send-btn img {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  padding-left: 5px;
+  padding-top: 12px;
+}
+
+.send-btn:hover {
+  transform: scale(1.1);
 }
 </style>
