@@ -47,12 +47,6 @@
           </div>
           <div class="text">智能写作</div>
         </li>
-<!--        <li @click="setActiveItem('知识库', '/')" :class="{ active: activeItem === '知识库' }">-->
-<!--          <div class="icon">-->
-<!--            <img src="@/assets/icon/knowledgebase.svg" alt="知识库" />-->
-<!--          </div>-->
-<!--          <div class="text">知识库</div>-->
-<!--        </li>-->
       </ul>
     </div>
 
@@ -64,11 +58,15 @@
             </div>
             <div class="text">我的</div>
         </li>
-        <li @click="setActiveItem('', '/login')">
-            <div class="icon">
-              <img src="@/assets/icon/logout.svg" alt="" />
-            </div>
-            <div class="text">登出</div>
+
+        <li @click="logout">
+          <div class="icon">
+            <img src="@/assets/icon/logout.svg" alt="" />
+          </div>
+          <div class="text">
+            <div v-if="checkLogin" @click="logout">登出</div>
+            <div v-else @click="setActiveItem('登录', '/login')">登录</div>
+          </div>
         </li>
       </ul>
     </div>
@@ -76,12 +74,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {ref, onMounted, computed} from 'vue';
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import {Logout} from "@/api/api.js";
 
 const router = useRouter();
+const store = useStore();
+
 const isSidebarClosed = ref(true);
 const activeItem = ref('首页');
+
+const checkLogin = computed(() => store.state.checkLogin);
+
+
+onMounted(() => {
+  const token = localStorage.getItem('token');
+  store.commit('setLoginState', !!token);
+});
 
 function openSidebar() {
   isSidebarClosed.value = false;
@@ -96,8 +106,24 @@ function setActiveItem(item, link) {
   router.push({ path: link });
 }
 
+async function logout() {
+  try {
+    await Logout();
+    console.log("登出请求成功");
+  } catch (error) {
+    console.error("登出失败:", error.response?.data || error.message);
+  } finally {
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
+    console.log("token 已清除");
 
+    store.commit('setLoginState', false);
+
+    await router.push('/login');
+  }
+}
 </script>
+
 
 <style scoped>
 * {

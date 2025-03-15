@@ -7,7 +7,7 @@
         <input type="text" placeholder="用户名" v-model="registerData.username" />
         <input type="text" placeholder="手机号" v-model="registerData.phone" />
         <input type="password" placeholder="密码" v-model="registerData.password" />
-        <input type="password" placeholder="确认密码" v-model="registerData.confirmPassword" />
+        <input type="password" placeholder="确认密码" v-model="registerData.confirm_password" />
         <button @click="register">注册</button>
       </div>
       <!-- 登录 -->
@@ -15,7 +15,7 @@
         <h1>login</h1>
         <input type="text" placeholder="用户名" v-model="loginData.username" />
         <input type="password" placeholder="密码" v-model="loginData.password" />
-        <p class="forgot-password" @click="">忘记密码？</p>
+<!--        <p class="forgot-password" @click="">忘记密码？</p>-->
         <button @click="login">登录</button>
       </div>
     </div>
@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import { Login, Register, CheckUsernameExist, CheckPhoneExist } from "@/api/api";
+
 export default {
   data() {
     return {
@@ -49,7 +51,7 @@ export default {
         username: '',
         phone: '',
         password: '',
-        confirmPassword: ''
+        confirm_password: ''
       }
     };
   },
@@ -60,12 +62,86 @@ export default {
     switchToRegister() {
       this.isRegistering = true;
     },
-    login() {
-      console.log('登录', this.loginData);
+
+    async login() {
+      if (!this.loginData.username || !this.loginData.password) {
+        alert("请输入用户名和密码");
+        return;
+      }
+
+      try {
+        const response = await Login(this.loginData);
+        console.log("登录成功:", response.data);
+
+        this.$store.dispatch('login', response.data.access);
+        this.$router.push('/index');
+      } catch (error) {
+        console.error("登录失败:", error.response?.data || error.message);
+        alert("用户名或密码错误");
+      }
     },
-    register() {
-      console.log('注册', this.registerData);
+
+    async register() {
+      if (this.registerData.password !== this.registerData.confirm_password) {
+        alert("密码与确认密码不匹配，请重新输入！");
+        return;
+      }
+
+      // **密码格式校验：至少8位，只能包含字母和数字**
+      const passwordRegex = /^[A-Za-z0-9]{8,}$/;
+      if (!passwordRegex.test(this.registerData.password)) {
+        alert("密码必须至少8位，并且只能包含字母和数字！");
+        return;
+      }
+
+      const phoneRegex = /^\d{11}$/;
+      if (!phoneRegex.test(this.registerData.phone)) {
+        alert("手机号必须为11位数字");
+        return;
+      }
+
+      async function checkUsernameExist(username) {
+        try {
+          const response = await CheckUsernameExist(username);
+          return response.data;
+        } catch (error) {
+          console.error('检查用户名是否存在时出错:', error.response?.data || error.message);
+          throw error;
+        }
+      }
+
+      async function checkPhoneExist(phone) {
+        try {
+          const response = await CheckPhoneExist(phone);
+          return response.data;
+        } catch (error) {
+          console.error('检查手机号是否存在时出错:', error.response?.data || error.message);
+          throw error;
+        }
+      }
+
+      try {
+        const checkResponse = await checkUsernameExist(this.registerData.username);
+        if (checkResponse.exists) {
+          alert("用户名已存在，请选择其他用户名");
+          return;
+        }
+
+        const phoneResponse = await checkPhoneExist(this.registerData.phone);
+        if (phoneResponse.exists) {
+          alert("手机号已被注册，请使用其他手机号");
+          return;
+        }
+
+        const response = await Register(this.registerData);
+        console.log("注册成功:", response);
+        this.switchToLogin();
+      } catch (error) {
+        console.error("注册失败:", error.response?.data || error.message);
+      }
     }
+
+
   }
 };
 </script>
