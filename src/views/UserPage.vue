@@ -1,5 +1,5 @@
 <script setup>
-import {computed, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import { useRouter } from 'vue-router';
 import Calendar from "@/components/Calendar.vue";
 import vueImage from "@/assets/vue.svg";
@@ -7,6 +7,7 @@ import avatarImage from "@/assets/icon/avatar.jpg";
 import testImage from "@/assets/test.jpg";
 const currentView = ref('我的');
 const router = useRouter();
+import {GetNickname, GetUserIntroduction, GetUserArticle, GetUserFans} from "@/api/api.js";
 
 const switchView = (view) => {
   currentView.value = view;
@@ -30,17 +31,24 @@ const cards = ref([
 
 const isEditing = ref(false);  // 用于控制是否显示编辑表单
 const userInfo = ref({
-  name: 'Momo',
-  intro: '这里是个人介绍。',
+  name: '',
+  intro: '',
+  article: 0,
+  fans: 0,
   avatar: avatarImage
 });
-// 保存表单数据
+
+onMounted(async () => {
+  userInfo.value.name = await GetNickname();
+  userInfo.value.intro = await GetUserIntroduction();
+  userInfo.value.article = await GetUserArticle();
+  userInfo.value.fans = await GetUserFans();
+});
+
 const saveUserInfo = () => {
-  isEditing.value = false; // 关闭编辑框
-  // 这里可以添加保存逻辑，比如发送到服务器等
+  isEditing.value = false;
 };
 
-// 头像选择
 const handleAvatarChange = (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -152,12 +160,13 @@ const handleAvatarChange = (event) => {
           <div class="avatar-img" ></div>
         </div>
         <div class="text">
-          <span style="margin-right: 5px">Momo</span>
+          <span style="margin-right: 5px">{{ userInfo.name }}</span>
           <img class="editBtn" src="@/assets/icon/edit.svg" alt="" @click="isEditing = true" >
         </div>
       </div>
-      <div style="margin-bottom: 10px"><span>发布: 0</span><span style="margin-left: 10px">关注: 0</span></div>
-      <span>个人资料...</span>
+      <div style="margin-bottom: 10px"><span>发布: {{ userInfo.article }}</span><span style="margin-left: 10px">粉丝: {{ userInfo.fans }}</span></div>
+      <span style="font-size: small">{{ userInfo.intro }}</span>
+
       <button @click="gotoAdmin" class="btn-admin">
         <span>管理员模式</span>
       </button>

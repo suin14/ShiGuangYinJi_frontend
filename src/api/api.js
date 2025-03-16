@@ -43,10 +43,117 @@ export function Login(data) {
 export function Logout() {
     return service({
         method: 'post',
-        url: '/usermanage/logout/',  // 登出接口
+        url: '/usermanage/logout/',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }  // 添加 token 到 header
     });
 }
+
+
+// 获取用户昵称
+export async function GetNickname() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error("发生错误，请重新登录");
+        }
+
+        const response = await service({
+            method: 'get',
+            url: '/usermanage/get-nickname/',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.nickname;
+    } catch (error) {
+        console.error("获取用户昵称时出错：", error);
+        if (error.response && error.response.status === 401) {
+            // alert("请重新登录");
+            await router.push('/login');
+        }
+        throw error;
+    }
+}
+
+// 获取用户简介
+export async function GetUserIntroduction() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error("发生错误，请重新登录");
+        }
+
+        const response = await service({
+            method: 'get',
+            url: '/usermanage/get-introduction/',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.introduction;
+    } catch (error) {
+        console.error("获取用户简介时出错：", error);
+        if (error.response && error.response.status === 401) {
+            // alert("请重新登录");
+            await router.push('/login');
+        }
+        throw error;
+    }
+}
+
+
+// 获取用户作品数
+export async function GetUserArticle() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error("发生错误，请重新登录");
+        }
+
+        const response = await service({
+            method: 'get',
+            url: '/usermanage/get-article/',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.article;
+    } catch (error) {
+        console.error("获取用户作品数时出错：", error);
+        if (error.response && error.response.status === 401) {
+            // alert("请重新登录");
+            await router.push('/login');
+        }
+        throw error;
+    }
+}
+
+
+export async function GetUserFans() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error("发生错误，请重新登录");
+        }
+
+        const response = await service({
+            method: 'get',
+            url: '/usermanage/get-fans/',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.fans;
+    } catch (error) {
+        console.error("获取用户粉丝数时出错：", error);
+        if (error.response && error.response.status === 401) {
+            // alert("请重新登录");
+            await router.push('/login');
+        }
+        throw error;
+    }
+}
+
 
 
 //开始智能体对话
