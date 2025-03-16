@@ -7,7 +7,7 @@ import avatarImage from "@/assets/icon/avatar.jpg";
 import testImage from "@/assets/test.jpg";
 const currentView = ref('我的');
 const router = useRouter();
-import {GetNickname, GetUserIntroduction, GetUserArticle, GetUserFans} from "@/api/api.js";
+import {GetUserProfile} from "@/api/api.js";
 
 const switchView = (view) => {
   currentView.value = view;
@@ -39,10 +39,12 @@ const userInfo = ref({
 });
 
 onMounted(async () => {
-  userInfo.value.name = await GetNickname();
-  userInfo.value.intro = await GetUserIntroduction();
-  userInfo.value.article = await GetUserArticle();
-  userInfo.value.fans = await GetUserFans();
+  const profileData = await GetUserProfile();
+  console.log(profileData)
+  userInfo.value.name = profileData.nickname;
+  userInfo.value.intro = profileData.introduction;
+  userInfo.value.article = profileData.article_count;
+  userInfo.value.fans = profileData.fans_count;
 });
 
 const saveUserInfo = () => {
