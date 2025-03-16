@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onMounted, ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import { useRouter } from 'vue-router';
 import Calendar from "@/components/Calendar.vue";
 import vueImage from "@/assets/vue.svg";
@@ -7,7 +7,7 @@ import avatarImage from "@/assets/icon/avatar.jpg";
 import testImage from "@/assets/test.jpg";
 const currentView = ref('我的');
 const router = useRouter();
-import {GetUserProfile} from "@/api/api.js";
+import {GetUserProfile, UpdateUserProfile} from "@/api/api.js";
 
 const switchView = (view) => {
   currentView.value = view;
@@ -29,7 +29,7 @@ const cards = ref([
 ]);
 
 
-const isEditing = ref(false);  // 用于控制是否显示编辑表单
+const isEditing = ref(false);
 const userInfo = ref({
   name: '',
   intro: '',
@@ -61,6 +61,30 @@ const handleAvatarChange = (event) => {
     reader.readAsDataURL(file);
   }
 };
+
+async function updateProfile() {
+  try {
+    const formData = new FormData();
+    formData.append('nickname', userInfo.value.name);
+    formData.append('introduction', userInfo.value.intro);
+    // if (userInfo.value.avatar) {
+    //   formData.append('avatar', userInfo.value.avatar);
+    // }
+
+    const response = await UpdateUserProfile(
+        userInfo.value.name,
+        userInfo.value.intro
+        // ,
+        // userInfo.value.avatar
+    );
+
+    alert("资料更新成功");
+  } catch (error) {
+    alert("更新失败，请稍后再试");
+  }
+}
+
+
 </script>
 
 <template>
@@ -195,7 +219,7 @@ const handleAvatarChange = (event) => {
           </div>
         </div>
         <div class="form-actions">
-          <button type="submit">保存</button>
+          <button type="submit" @click="updateProfile">保存</button>
           <button type="button" @click="isEditing = false">取消</button>
         </div>
       </form>

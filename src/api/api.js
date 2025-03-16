@@ -104,6 +104,36 @@ export async function GetUserProfile() {
 }
 
 
+// 更新个人资料
+export async function UpdateUserProfile(nickname, introduction) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'put',
+            url: 'usermanage/edit-profile/',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            data: {
+                nickname,
+                introduction,
+                // avatar,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('更新个人资料时出错:', error);
+        alert('更新失败，请稍后重试！');
+        throw error;
+    }
+}
+
+
 
 
 
