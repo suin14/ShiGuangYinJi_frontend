@@ -86,14 +86,17 @@ const isSidebarClosed = ref(true);
 const activeItem = ref('首页');
 
 const checkLogin = computed(() => store.state.checkLogin);
-let userAvatar = 'avatar.png';
+let userAvatar = 'http://127.0.0.1:8000/media/avatars/avatar.png';
 
 onMounted(async () => {
   const token = localStorage.getItem('token');
   store.commit('setLoginState', !!token);
 
   const avatarData = await GetUserAvatar();
-  userAvatar = avatarData.avatar_url
+  if (avatarData != null)
+    userAvatar = avatarData.avatar_url
+
+  console.log(userAvatar)
 });
 
 function openSidebar() {

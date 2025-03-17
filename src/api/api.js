@@ -1,4 +1,5 @@
 import service from "@/api/service.js";
+import router from "@/router/index.js";
 
 // 注册
 export function Register(data) {
@@ -95,7 +96,7 @@ export async function GetUserProfile() {
     } catch (error) {
         console.error("获取用户信息时出错：", error);
         if (error.response && error.response.status === 401) {
-            await router.push('/login');
+            router.push('/login');
         } else {
             alert("发生了未知错误，请稍后重试！");
         }
@@ -157,7 +158,7 @@ export async function GetUserAvatar() {
         return response.data;
     } catch (error) {
         console.error('获取头像时出错:', error);
-        alert('获取头像失败，请稍后重试！');
+        // alert('获取头像失败，请稍后重试！');
         throw error;
     }
 }
