@@ -53,9 +53,9 @@
     <div class="bottom">
       <ul>
         <li @click="setActiveItem('', '/user')">
-            <div class="icon">
-              <div class="avatar" ></div>
-            </div>
+
+              <img :src="`${userAvatar}`" alt="用户头像" class="avatar" />
+
             <div class="text">我的</div>
         </li>
 
@@ -77,7 +77,7 @@
 import {ref, onMounted, computed} from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import {Logout} from "@/api/api.js";
+import {GetUserAvatar, Logout} from "@/api/api.js";
 
 const router = useRouter();
 const store = useStore();
@@ -86,11 +86,14 @@ const isSidebarClosed = ref(true);
 const activeItem = ref('首页');
 
 const checkLogin = computed(() => store.state.checkLogin);
+let userAvatar = 'avatar.png';
 
-
-onMounted(() => {
+onMounted(async () => {
   const token = localStorage.getItem('token');
   store.commit('setLoginState', !!token);
+
+  const avatarData = await GetUserAvatar();
+  userAvatar = avatarData.avatar_url
 });
 
 function openSidebar() {
@@ -283,12 +286,12 @@ ul li:hover .text {
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  min-width: 50px;
+  height: 50px;
+  margin: 10px;
   border-radius: 50%;
-  background-image: url('@/assets/icon/avatar.jpg');
-  background-size: cover;
-  background-position: center;
+  object-fit: cover;
+  object-position: center 20%;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
 }

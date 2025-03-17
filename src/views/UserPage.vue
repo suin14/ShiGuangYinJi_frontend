@@ -220,11 +220,11 @@ async function editUserProfile() {
       <form @submit.prevent="saveUserInfo">
         <div class="form-group">
           <label for="name">名字:</label>
-          <input v-model="changeUserInfo.name" id="name" type="text" required />
+          <input v-model="changeUserInfo.name" id="name" type="text" required maxlength="5"/>
         </div>
         <div class="form-group">
           <label for="intro">个人介绍:</label>
-          <textarea v-model="changeUserInfo.intro" id="intro" required></textarea>
+          <textarea v-model="changeUserInfo.intro" id="intro" required maxlength="50"></textarea>
         </div>
         <div class="form-group">
           <label for="avatar">头像:</label>
