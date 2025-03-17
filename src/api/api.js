@@ -105,11 +105,19 @@ export async function GetUserProfile() {
 
 
 // 更新个人资料
-export async function UpdateUserProfile(nickname, introduction) {
+export async function UpdateUserProfile(nickname, introduction, avatar) {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
             throw new Error('请先登录');
+        }
+
+        const formData = new FormData();
+        formData.append('nickname', nickname);
+        formData.append('introduction', introduction);
+
+        if (avatar) {
+            formData.append('avatar', avatar);
         }
 
         const response = await service({
@@ -118,11 +126,7 @@ export async function UpdateUserProfile(nickname, introduction) {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-            data: {
-                nickname,
-                introduction,
-                // avatar,
-            },
+            data: formData,
         });
 
         return response.data;
@@ -132,6 +136,32 @@ export async function UpdateUserProfile(nickname, introduction) {
         throw error;
     }
 }
+
+// 获取用户头像
+export async function GetUserAvatar() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: 'usermanage/get-avatar/',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        console.log(response)
+        return response.data;
+    } catch (error) {
+        console.error('获取头像时出错:', error);
+        alert('获取头像失败，请稍后重试！');
+        throw error;
+    }
+}
+
 
 
 

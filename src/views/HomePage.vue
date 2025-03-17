@@ -4,7 +4,7 @@ import HomeCard from "@/components/HomeCard.vue";
 import CardDetail from "@/components/CardDetail.vue";
 import vueImage from '@/assets/vue.svg';
 import testImage from "@/assets/test.jpg";
-import avatarImage from '@/assets/icon/avatar.jpg';
+import avatarImage from '@/assets/avatar.png';
 import router from "@/router/index.js";
 
 const searchInput = ref('');

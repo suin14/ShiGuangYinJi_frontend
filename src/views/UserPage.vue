@@ -1,13 +1,13 @@
 <script setup>
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Calendar from "@/components/Calendar.vue";
 import vueImage from "@/assets/vue.svg";
-import avatarImage from "@/assets/icon/avatar.jpg";
+import avatarImage from "@/assets/avatar.png";
 import testImage from "@/assets/test.jpg";
 const currentView = ref('我的');
 const router = useRouter();
-import {GetUserProfile, UpdateUserProfile} from "@/api/api.js";
+import { GetUserProfile, UpdateUserProfile, GetUserAvatar } from "@/api/api.js";
 
 const switchView = (view) => {
   currentView.value = view;
@@ -21,30 +21,34 @@ const cards = ref([
   { imageSrc: vueImage, title: '欢迎来到主页', userAvatar: avatarImage, userName: 'Momo', content: '这是主页的简介' },
   { imageSrc: testImage, title: '开发者社区', userAvatar: avatarImage, userName: '张三', content: '加入我们的开发者社区' },
   { imageSrc: vueImage, title: 'Vue 3 教程', userAvatar: avatarImage, userName: '李四', content: '学习 Vue 3 的基础知识' },
-  { imageSrc: testImage, title: 'JavaScript 学习', userAvatar: avatarImage, userName: '王五', content: '深入了解 JavaScript 语言' },
-  { imageSrc: vueImage, title: '欢迎来到主页', userAvatar: avatarImage, userName: 'Momo', content: '这里是一个欢迎页面' },
-  { imageSrc: testImage, title: '开发者社区', userAvatar: avatarImage, userName: '张三', content: '加入社区获取关于技术文章' },
-  { imageSrc: vueImage, title: 'Vue 3 教程', userAvatar: avatarImage, userName: '李四', content: '本教程适合初学者' },
-  { imageSrc: testImage, title: 'JavaScript 学习', userAvatar: avatarImage, userName: '王五', content: '提供详细的 JavaScript 教程' }
+  { imageSrc: testImage, title: 'JavaScript 学习', userAvatar: avatarImage, userName: '王五', content: '深入了解 JavaScript 语言' }
 ]);
 
-
-const isEditing = ref(false);
+let isEditing = ref(false);
 const userInfo = ref({
   name: '',
   intro: '',
   article: 0,
   fans: 0,
-  avatar: avatarImage
+  avatar: 'avatar.png'
+});
+
+const changeUserInfo = ref({
+  name: '',
+  intro: '',
+  avatar: 'avatar.png',
+  avatarPreview: 'avatar.png',
 });
 
 onMounted(async () => {
   const profileData = await GetUserProfile();
-  console.log(profileData)
   userInfo.value.name = profileData.nickname;
   userInfo.value.intro = profileData.introduction;
   userInfo.value.article = profileData.article_count;
   userInfo.value.fans = profileData.fans_count;
+  const avatarData = await GetUserAvatar();
+  userInfo.value.avatar = avatarData.avatar_url
+  // console.log(userInfo.value);
 });
 
 const saveUserInfo = () => {
@@ -54,9 +58,11 @@ const saveUserInfo = () => {
 const handleAvatarChange = (event) => {
   const file = event.target.files[0];
   if (file) {
+    changeUserInfo.value.avatar = file;
+
     const reader = new FileReader();
     reader.onload = () => {
-      userInfo.value.avatar = reader.result;
+      changeUserInfo.value.avatarPreview = reader.result;
     };
     reader.readAsDataURL(file);
   }
@@ -65,27 +71,36 @@ const handleAvatarChange = (event) => {
 async function updateProfile() {
   try {
     const formData = new FormData();
-    formData.append('nickname', userInfo.value.name);
-    formData.append('introduction', userInfo.value.intro);
-    // if (userInfo.value.avatar) {
-    //   formData.append('avatar', userInfo.value.avatar);
-    // }
+    formData.append('nickname', changeUserInfo.value.name);
+    formData.append('introduction', changeUserInfo.value.intro);
+
+    if (changeUserInfo.value.avatar instanceof File) {
+      formData.append('avatar', changeUserInfo.value.avatar);
+    }
 
     const response = await UpdateUserProfile(
-        userInfo.value.name,
-        userInfo.value.intro
-        // ,
-        // userInfo.value.avatar
+        changeUserInfo.value.name,
+        changeUserInfo.value.intro,
+        changeUserInfo.value.avatar
     );
 
-    alert("资料更新成功");
+    // alert("资料更新成功");
+    window.location.reload();
   } catch (error) {
     alert("更新失败，请稍后再试");
   }
 }
 
+async function editUserProfile() {
+  isEditing.value = true;
 
+  changeUserInfo.value.name = userInfo.value.name;
+  changeUserInfo.value.intro = userInfo.value.intro;
+  changeUserInfo.value.avatar = userInfo.value.avatar;
+  changeUserInfo.value.avatarPreview = userInfo.value.avatar;
+}
 </script>
+
 
 <template>
   <div class="container">
@@ -170,7 +185,7 @@ async function updateProfile() {
                 <h3 class="card-title">{{ card.title }}</h3>
 
                 <div class="card-header">
-                  <img :src="card.userAvatar" alt="User Avatar" class="avatar-image" />
+                  <img v-if="userInfo.avatar" :src="userInfo.avatar" alt="用户头像" />
                   <span class="user-name">{{ card.userName }}</span>
                 </div>
               </div>
@@ -183,11 +198,11 @@ async function updateProfile() {
     <div class="right-box">
       <div class="avatar">
         <div class="icon">
-          <div class="avatar-img" ></div>
+          <img :src="`${userInfo.avatar}`" alt="用户头像" class="avatar-image"/>
         </div>
         <div class="text">
           <span style="margin-right: 5px">{{ userInfo.name }}</span>
-          <img class="editBtn" src="@/assets/icon/edit.svg" alt="" @click="isEditing = true" >
+          <img class="editBtn" src="@/assets/icon/edit.svg" alt="" @click="editUserProfile" >
         </div>
       </div>
       <div style="margin-bottom: 10px"><span>发布: {{ userInfo.article }}</span><span style="margin-left: 10px">粉丝: {{ userInfo.fans }}</span></div>
@@ -205,17 +220,17 @@ async function updateProfile() {
       <form @submit.prevent="saveUserInfo">
         <div class="form-group">
           <label for="name">名字:</label>
-          <input v-model="userInfo.name" id="name" type="text" required />
+          <input v-model="changeUserInfo.name" id="name" type="text" required />
         </div>
         <div class="form-group">
           <label for="intro">个人介绍:</label>
-          <textarea v-model="userInfo.intro" id="intro" required></textarea>
+          <textarea v-model="changeUserInfo.intro" id="intro" required></textarea>
         </div>
         <div class="form-group">
           <label for="avatar">头像:</label>
           <input type="file" @change="handleAvatarChange" />
           <div class="avatar-preview">
-            <img :src="userInfo.avatar" alt="头像" class="avatar-image" />
+            <img :src="`${changeUserInfo.avatarPreview}`" alt="用户头像预览" class="avatar-image"/>
           </div>
         </div>
         <div class="form-actions">
@@ -290,16 +305,6 @@ async function updateProfile() {
   transition: 0.5s;
   padding-left: 5px;
   margin-bottom: 10px;
-}
-
-.avatar-img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background-image: url('@/assets/icon/avatar.jpg');
-  background-size: cover;
-  background-position: center;
-  cursor: pointer;
 }
 
 .btn-admin {
@@ -396,8 +401,8 @@ async function updateProfile() {
 }
 
 .avatar-image {
-  width: 50px;
-  height: 50px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   margin-right: 10px;
 }
