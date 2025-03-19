@@ -15,7 +15,7 @@ const sendMessage = async () => {
     inputMessage.value = '';
 
     try {
-      const res = await AichatAsk(msg, 'void', cid.value);
+      const res = await AichatAsk(msg, 'test', cid.value);
       // console.log(res)
       if (res && res.msg) {
         messages.value.push({ text: res.msg, sender: '张伟' });

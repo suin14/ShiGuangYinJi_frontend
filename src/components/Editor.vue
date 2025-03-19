@@ -41,6 +41,8 @@ import saveIcon from '@/assets/icon/save.svg';
 import deleteIcon from '@/assets/icon/delete.svg';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { createDocument } from '@/api/api.js';
+
 
 const props = defineProps({
   value: {
@@ -180,11 +182,33 @@ const selectOption = (option) => {
   selectedOption.value = option;
 };
 
-const confirmSubmit = () => {
-  alert(`文章已提交，状态：${selectedOption.value === 'public' ? '公开' : '私密'}`);
+const confirmSubmit = async () => {
+  const quill = quillEditor.value?.getQuill();
+  if (!quill) {
+    console.error('Quill editor is not initialized');
+    return;
+  }
+
+  const title = document.querySelector('.article-title')?.value.trim();
+  const contentHTML = quill.root.innerHTML;
+
+  if (!title) {
+    alert('标题不能为空');
+    return;
+  }
+
+  const response = await createDocument(title, contentHTML);
+
+  if (response.success) {
+    alert(`文章已提交，状态：${selectedOption.value === 'public' ? '公开' : '私密'}`);
+  } else {
+    alert('提交失败，请重试');
+  }
+
   showDialog.value = false;
   selectedOption.value = '';
 };
+
 
 const saveDraft = () => {
   alert('草稿已保存');

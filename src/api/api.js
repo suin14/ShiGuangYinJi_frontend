@@ -163,11 +163,85 @@ export async function GetUserAvatar() {
     }
 }
 
+// 创建文档
+export async function createDocument(title, content) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
 
+        const res = await service({
+            method: 'post',
+            url: '/docs/create/',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            data: { title, content }
+        });
+        return res.data;
+    } catch (error) {
+        console.error("创建文档失败:", error);
+        throw error;
+    }
+}
 
-
-
-
+// // 获取文档列表
+// export async function getDocuments() {
+//     try {
+//         const res = await service({
+//             method: 'get',
+//             url: '/docs/',
+//         });
+//         return res.data;
+//     } catch (error) {
+//         console.error("获取文档列表失败:", error);
+//         throw error;
+//     }
+// }
+//
+// // 获取单个文档详情
+// export async function getDocument(docId) {
+//     try {
+//         const res = await service({
+//             method: 'get',
+//             url: `/docs/${docId}/`,
+//         });
+//         return res.data;
+//     } catch (error) {
+//         console.error("获取文档失败:", error);
+//         throw error;
+//     }
+// }
+//
+// // 更新文档
+// export async function updateDocument(docId, title, content) {
+//     try {
+//         const res = await service({
+//             method: 'put',
+//             url: `/docs/${docId}/`,
+//             data: { title, content }
+//         });
+//         return res.data;
+//     } catch (error) {
+//         console.error("更新文档失败:", error);
+//         throw error;
+//     }
+// }
+//
+// // 删除文档
+// export async function deleteDocument(docId) {
+//     try {
+//         const res = await service({
+//             method: 'delete',
+//             url: `/docs/${docId}/`,
+//         });
+//         return res.data;
+//     } catch (error) {
+//         console.error("删除文档失败:", error);
+//         throw error;
+//     }
+// }
 
 //开始智能体对话
 export async function AichatStart() {

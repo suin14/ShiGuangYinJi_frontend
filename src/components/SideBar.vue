@@ -115,6 +115,7 @@ function setActiveItem(item, link) {
 async function logout() {
   try {
     await Logout();
+    userAvatar = 'http://127.0.0.1:8000/media/avatars/avatar.png'
     console.log("登出请求成功");
   } catch (error) {
     console.error("登出失败:", error.response?.data || error.message);
