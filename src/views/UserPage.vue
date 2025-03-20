@@ -7,7 +7,7 @@ import avatarImage from "@/assets/avatar.png";
 import testImage from "@/assets/test.jpg";
 const currentView = ref('我的');
 const router = useRouter();
-import { GetUserProfile, UpdateUserProfile, GetUserAvatar } from "@/api/api.js";
+import {GetUserProfile, UpdateUserProfile, GetUserAvatar, getUserDocuments, deleteUserDocument} from "@/api/api.js";
 
 const switchView = (view) => {
   currentView.value = view;
@@ -40,6 +40,8 @@ const changeUserInfo = ref({
   avatarPreview: 'avatar.png',
 });
 
+const documents = ref([]);
+
 onMounted(async () => {
   const profileData = await GetUserProfile();
   userInfo.value.name = profileData.nickname;
@@ -49,6 +51,17 @@ onMounted(async () => {
   const avatarData = await GetUserAvatar();
   userInfo.value.avatar = avatarData.avatar_url
   // console.log(userInfo.value);
+
+  try {
+    const res = await getUserDocuments();
+    if (res.success) {
+      documents.value = res.data;
+    } else {
+      alert("获取文档失败，请稍后重试");
+    }
+  } catch (error) {
+    alert("无法获取文档，请检查网络");
+  }
 });
 
 const saveUserInfo = () => {
@@ -99,6 +112,24 @@ async function editUserProfile() {
   changeUserInfo.value.avatar = userInfo.value.avatar;
   changeUserInfo.value.avatarPreview = userInfo.value.avatar;
 }
+
+async function handleDeleteDocument(docId) {
+  if (!confirm("确定要删除这个文档吗？")) {
+    return;
+  }
+
+  try {
+    const res = await deleteUserDocument(docId);
+    if (res.success) {
+      alert("文档删除成功");
+      documents.value = documents.value.filter(doc => doc.id !== docId); // 更新前端数据
+    } else {
+      alert("删除失败，请稍后重试");
+    }
+  } catch (error) {
+    alert("无法删除文档，请检查网络");
+  }
+}
 </script>
 
 
@@ -121,17 +152,17 @@ async function editUserProfile() {
           </div>
 
           <div class="cards-container">
-            <div v-for="(card, index) in cards" :key="index" class="content-card">
-              <img :src="card.imageSrc" alt="Card Image" class="card-image" />
+            <div v-for="(doc, index) in documents" :key="index" class="content-card">
+<!--              <img :src="card.imageSrc" alt="Card Image" class="card-image" />-->
 
               <div class="card-content">
-                <h3 class="card-title">{{ card.title }}</h3>
-                <span>{{ card.content }}</span>
+                <h3 class="card-title">{{ doc.title }}</h3>
+                <span>{{ doc.content }}</span>
               </div>
 
               <div class="card-btn">
                 <img src="@/assets/icon/edit.svg" alt="" @click="">
-                <img src="@/assets/icon/close.svg" alt="" @click="">
+                <img src="@/assets/icon/close.svg" alt="" @click="handleDeleteDocument(doc.id)">
               </div>
             </div>
           </div>
@@ -139,12 +170,12 @@ async function editUserProfile() {
 
         <div v-if="currentView === '草稿箱'">
           <div class="cards-container">
-            <div v-for="(card, index) in cards" :key="index" class="content-card">
-              <img :src="card.imageSrc" alt="Card Image" class="card-image" />
+            <div v-for="(doc, index) in documents" :key="index" class="content-card">
+<!--              <img :src="card.imageSrc" alt="Card Image" class="card-image" />-->
 
               <div class="card-content">
-                <h3 class="card-title">{{ card.title }}</h3>
-                <span>{{ card.content }}</span>
+                <h3 class="card-title">{{ doc.title }}</h3>
+                <span>{{ doc.content }}</span>
               </div>
 
               <div class="card-btn">
