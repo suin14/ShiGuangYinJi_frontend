@@ -2,12 +2,17 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Calendar from "@/components/Calendar.vue";
-import vueImage from "@/assets/vue.svg";
-import avatarImage from "@/assets/avatar.png";
-import testImage from "@/assets/test.jpg";
+
 const currentView = ref('我的');
 const router = useRouter();
-import {GetUserProfile, UpdateUserProfile, GetUserAvatar, getUserDocuments, deleteUserDocument} from "@/api/api.js";
+import {
+  GetUserProfile,
+  UpdateUserProfile,
+  GetUserAvatar,
+  getUserDocuments,
+  deleteUserDocument,
+  getUserDocumentCreationTimes
+} from "@/api/api.js";
 
 const switchView = (view) => {
   currentView.value = view;
@@ -16,13 +21,6 @@ const switchView = (view) => {
 function gotoAdmin() {
   router.push({ path: '/admin' });
 }
-
-const cards = ref([
-  { imageSrc: vueImage, title: '欢迎来到主页', userAvatar: avatarImage, userName: 'Momo', content: '这是主页的简介' },
-  { imageSrc: testImage, title: '开发者社区', userAvatar: avatarImage, userName: '张三', content: '加入我们的开发者社区' },
-  { imageSrc: vueImage, title: 'Vue 3 教程', userAvatar: avatarImage, userName: '李四', content: '学习 Vue 3 的基础知识' },
-  { imageSrc: testImage, title: 'JavaScript 学习', userAvatar: avatarImage, userName: '王五', content: '深入了解 JavaScript 语言' }
-]);
 
 let isEditing = ref(false);
 const userInfo = ref({
@@ -41,8 +39,16 @@ const changeUserInfo = ref({
 });
 
 const documents = ref([]);
+const createdAtList = ref([]);
 
 onMounted(async () => {
+  try {
+    createdAtList.value = await getUserDocumentCreationTimes();  // 获取文档创建时间
+    console.log(createdAtList.value)
+  } catch (error) {
+    console.error('获取创建时间失败:', error);
+  }
+
   const profileData = await GetUserProfile();
   userInfo.value.name = profileData.nickname;
   userInfo.value.intro = profileData.introduction;
@@ -130,7 +136,19 @@ async function handleDeleteDocument(docId) {
     alert("无法删除文档，请检查网络");
   }
 }
+
+const handleEditDocument = (doc) => {
+  router.push({
+    name: '文档编辑器',
+    query: {
+      id: doc.id,
+      title: encodeURIComponent(doc.title),
+      content: encodeURIComponent(doc.content)
+    }
+  });
+};
 </script>
+
 
 
 <template>
@@ -139,8 +157,8 @@ async function handleDeleteDocument(docId) {
       <div class="top-navi">
         <span @click="switchView('我的')" :class="{ active: currentView === '我的' }">我的</span>
         <span> | </span>
-        <span @click="switchView('草稿箱')" :class="{ active: currentView === '草稿箱' }">草稿箱</span>
-        <span> | </span>
+<!--        <span @click="switchView('草稿箱')" :class="{ active: currentView === '草稿箱' }">草稿箱</span>-->
+<!--        <span> | </span>-->
         <span @click="switchView('回收站')" :class="{ active: currentView === '回收站' }">回收站</span>
         <span> | </span>
         <span @click="switchView('收藏')" :class="{ active: currentView === '收藏' }">收藏</span>
@@ -154,16 +172,17 @@ async function handleDeleteDocument(docId) {
           <div class="cards-container">
             <div v-for="(doc, index) in documents" :key="index" class="content-card">
 <!--              <img :src="card.imageSrc" alt="Card Image" class="card-image" />-->
+              <div class="card-btn">
+                <img src="@/assets/icon/edit.svg" alt="" @click="handleEditDocument(doc)">
+                <img src="@/assets/icon/close.svg" alt="" @click="handleDeleteDocument(doc.id)">
+              </div>
 
               <div class="card-content">
                 <h3 class="card-title">{{ doc.title }}</h3>
                 <span>{{ doc.content }}</span>
               </div>
 
-              <div class="card-btn">
-                <img src="@/assets/icon/edit.svg" alt="" @click="">
-                <img src="@/assets/icon/close.svg" alt="" @click="handleDeleteDocument(doc.id)">
-              </div>
+
             </div>
           </div>
         </div>
@@ -203,26 +222,26 @@ async function handleDeleteDocument(docId) {
           </div>
         </div>
 
-        <div v-if="currentView === '收藏'">
-          <div class="cards-container">
-            <div v-for="(card, index) in cards" :key="index" class="content-card">
-              <img :src="card.imageSrc" alt="Card Image" class="card-image" />
+<!--        <div v-if="currentView === '收藏'">-->
+<!--          <div class="cards-container">-->
+<!--            <div v-for="(card, index) in cards" :key="index" class="content-card">-->
+<!--              <img :src="card.imageSrc" alt="Card Image" class="card-image" />-->
 
-              <div class="card-content">
-                <span>{{ card.content }}</span>
-              </div>
+<!--              <div class="card-content">-->
+<!--                <span>{{ card.content }}</span>-->
+<!--              </div>-->
 
-              <div class="card-details">
-                <h3 class="card-title">{{ card.title }}</h3>
+<!--              <div class="card-details">-->
+<!--                <h3 class="card-title">{{ card.title }}</h3>-->
 
-                <div class="card-header">
-                  <img v-if="userInfo.avatar" :src="userInfo.avatar" alt="用户头像" />
-                  <span class="user-name">{{ card.userName }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<!--                <div class="card-header">-->
+<!--                  <img v-if="userInfo.avatar" :src="userInfo.avatar" alt="用户头像" />-->
+<!--                  <span class="user-name">{{ card.userName }}</span>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
     </div>
 
@@ -392,6 +411,7 @@ async function handleDeleteDocument(docId) {
   overflow-y: auto;
   max-height: 65vh;
   padding-bottom: 5px;
+
 }
 
 .content-card {
@@ -403,6 +423,10 @@ async function handleDeleteDocument(docId) {
   box-shadow: 1px 1px 8px rgb(128, 128, 128);
   justify-content: space-between;
   align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 550px;
 }
 
 .card-image {
@@ -417,6 +441,7 @@ async function handleDeleteDocument(docId) {
   text-align: left;
   width: auto;
   font-family: 黑体 , serif;
+  max-width: 550px;
 }
 
 .card-details {

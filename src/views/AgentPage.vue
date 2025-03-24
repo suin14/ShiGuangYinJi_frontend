@@ -40,6 +40,16 @@ onMounted(async () => {
     console.error("请求失败:", error);
   }
 });
+
+const copyMessageText = async () => {
+  try {
+    // console.log(messages.value[messages.value.length - 1].text)
+    await navigator.clipboard.writeText(messages.value[messages.value.length - 1].text)
+    console.log('复制成功')
+  } catch (err) {
+    console.error('复制失败', err)
+  }
+}
 </script>
 
 <template>
@@ -63,6 +73,9 @@ onMounted(async () => {
             </strong>
           </div>
           <div>{{ message.text }}</div>
+          <div class="copy-btn" v-if="message.sender !== '我'">
+            <img src="@/assets/icon/copy.svg" alt="上传" @click="copyMessageText"/>
+          </div>
         </div>
       </div>
 
@@ -77,9 +90,9 @@ onMounted(async () => {
         <div class="send-btn">
           <img src="@/assets/icon/send.svg" alt="发送" @click="sendMessage"/>
         </div>
-        <div class="upload-btn">
-          <img src="@/assets/icon/pin.svg" alt="上传" @click=""/>
-        </div>
+<!--        <div class="upload-btn">-->
+<!--          <img src="@/assets/icon/pin.svg" alt="上传" @click=""/>-->
+<!--        </div>-->
       </div>
     </div>
   </div>
@@ -175,16 +188,26 @@ onMounted(async () => {
   background-color: #fff;
 }
 
-.upload-btn img,
-.send-btn img {
-  width: 24px;
-  height: 24px;
+.copy-btn img {
+  width: 16px;
+  height: 16px;
   cursor: pointer;
   transition: transform 0.3s ease;
   padding-left: 10px;
   padding-top: 5px;
 }
 
+.upload-btn img,
+.send-btn img {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  margin-left: 30px;
+  padding-top: 5px;
+}
+
+.copy-btn img,
 .upload-btn:hover,
 .send-btn:hover {
   transform: scale(1.1);

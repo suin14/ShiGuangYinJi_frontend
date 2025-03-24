@@ -1,6 +1,6 @@
 <template>
   <div class="editor-container">
-    <input type="text" class="article-title" placeholder="标题" />
+    <input type="text" v-model="articleTitle" class="article-title" placeholder="标题" />
 
     <QuillEditor ref="quillEditor" content-type="html" v-model:content="content" :options="editorOption" />
 
@@ -42,9 +42,15 @@ import deleteIcon from '@/assets/icon/delete.svg';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { createDocument } from '@/api/api.js';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 
 const props = defineProps({
+  title: {
+    type: String,
+    default: '',
+  },
   value: {
     type: String,
     default: '',
@@ -53,7 +59,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update:value']);
 
-const content = ref(props.value);
+const content = ref(props.value.content);
+
+
+const articleTitle = ref(props.title);
 const isListening = ref(false);
 const quillEditor = ref(null);
 const showDialog = ref(false);
@@ -65,6 +74,12 @@ const startRecognition = () => {
   recognition.start();
   isListening.value = true;
 };
+
+watchEffect(() => {
+  content.value = props.value;
+  articleTitle.value = props.title;
+  emit('update:value', content.value);
+});
 
 const exportToPDF = async () => {
   // 功能实现有问题
@@ -134,6 +149,13 @@ onMounted(() => {
     if (quill) {
       console.log('Quill editor initialized');
     }
+  }
+
+  if (route.query.title) {
+    articleTitle.value = route.query.title;
+  }
+  if (route.query.content) {
+    content.value = route.query.content;
   }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

@@ -232,6 +232,54 @@ export async function deleteUserDocument(docId) {
     }
 }
 
+// 编辑文档
+export async function editDocument(docId, data) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'put',
+            url: `/docs/edit/${docId}/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            data,
+        });
+        return response.data;
+    } catch (error) {
+        console.error('更新文档失败:', error);
+        throw error;
+    }
+}
+
+// 获取文档创建日期
+export async function getUserDocumentCreationTimes() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: 'docs/get_created_at/',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data.created_at;
+    } catch (error) {
+        console.error('获取创建时间失败:', error);
+        throw error;
+    }
+}
+
+
+
 
 //开始智能体对话
 export async function AichatStart() {
