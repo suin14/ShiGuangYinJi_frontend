@@ -19,8 +19,8 @@
             :key="day.date ? `${day.date}-${index}` : 'empty'"
             :class="{
             'calendar-day-hover': day.date,
-            'selected-date': isSelectedDate(day),
             'created-date': isDocumentCreationDate(day),
+            'selected-date': isSelectedDate(day),
           }"
             v-html="day.content"
             @click="selectDate(day)"
@@ -330,14 +330,15 @@ export default {
 }
 
 .calendar-days div.selected-date {
+  background-color: #536555 !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+}
+
+.calendar-days div.created-date {
   background-color: #536555;
   color: #fff;
   border-radius: 50%;
 }
 
-.calendar-days div.created-date {
-  background-color: rgb(128, 128, 128);
-  color: #fff;
-  border-radius: 50%;
-}
 </style>

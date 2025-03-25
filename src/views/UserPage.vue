@@ -146,16 +146,16 @@ const selectedDate = ref({
 });
 
 async function selectedDocsByDate(date) {
+  selectedDate.value = date
   if (typeof date === "object" && date.year && date.month && date.date) {
     date.month = date.month + 1;
     date = `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.date).padStart(2, "0")}`;
   }
-  console.log("请求日期:", date);
+  // console.log("请求日期:", date);
   try {
     const res = await getDocsByDate(date);
     if (res.success) {
       documents.value = res.data;
-      console.log(res.data)
     } else {
       alert("搜索失败，请稍后重试");
     }
