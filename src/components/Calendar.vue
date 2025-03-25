@@ -15,9 +15,13 @@
       </div>
       <div class="calendar-days">
         <div
-            v-for="day in days"
-            :key="day.date || 'empty'"
-            :class="{ 'calendar-day-hover': true, 'selected-date': isSelectedDate(day) }"
+            v-for="(day, index) in days"
+            :key="day.date ? `${day.date}-${index}` : 'empty'"
+            :class="{
+            'calendar-day-hover': day.date,
+            'selected-date': isSelectedDate(day),
+            'created-date': isDocumentCreationDate(day),
+          }"
             v-html="day.content"
             @click="selectDate(day)"
         ></div>
@@ -33,21 +37,39 @@
 </template>
 
 <script>
+import { getUserDocumentCreationTimes } from "@/api/api.js";
+
 export default {
+  props: {
+    modelValue: {
+      type: Object,
+      default: () => ({ year: null, month: null, date: null }),
+    }
+  },
+
   data() {
+
     const currDate = new Date();
     return {
       currentMonth: currDate.getMonth(),
       currentYear: currDate.getFullYear(),
       selectedDate: {
-        year: currDate.getFullYear(),
-        month: currDate.getMonth(),
-        date: currDate.getDate(),
+        year: null,
+        month: null,
+        date: null,
       },
       showMonthList: false,
       monthNames: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
       weekDays: ['日', '一', '二', '三', '四', '五', '六'],
+      documentCreationDates: [], // 用于存储从API获取的日期
     };
+  },
+  mounted() {
+    // 获取文档创建时间并存储
+    getUserDocumentCreationTimes().then((dates) => {
+      this.documentCreationDates = dates.map(date => date.split('T')[0]);
+      console.log(this.documentCreationDates)
+    });
   },
   computed: {
     days() {
@@ -90,7 +112,9 @@ export default {
           month: day.month,
           date: day.date,
         };
+        this.$emit('update:modelValue', this.selectedDate);  // 向父组件发出更新日期的事件
       }
+
     },
     isSelectedDate(day) {
       return (
@@ -98,6 +122,15 @@ export default {
           day.month === this.selectedDate.month &&
           day.date === this.selectedDate.date
       );
+    },
+    isDocumentCreationDate(day) {
+      // 将日期字符串转换为 "YYYY-MM-DD" 格式
+      const dateString = `${day.year}-${String(day.month + 1).padStart(2, '0')}-${String(day.date).padStart(2, '0')}`;
+
+      return this.documentCreationDates.some((createdDate) => {
+        const createdDateString = createdDate.split('T')[0];
+        return createdDateString === dateString;
+      });
     },
     isLeapYear(year) {
       return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
@@ -178,10 +211,10 @@ export default {
 }
 
 .calendar-days div span:nth-child(1),
-.calendar-days div span:nth-child(3) {
+.calendar-days div:nth-child(3) {
   width: 2px;
   height: 0;
-  background-color: #151426;
+  background-color: #fbfbfb;
 }
 
 .calendar-days div:hover span:nth-child(1),
@@ -211,12 +244,12 @@ export default {
   width: 100%;
 }
 
-.calendar-days div span:nth-child(2) {
+.calendar-days div:nth-child(2) {
   top: 0;
   left: 0;
 }
 
-.calendar-days div span:nth-child(4) {
+.calendar-days div:nth-child(4) {
   bottom: 0;
   right: 0;
 }
@@ -298,6 +331,12 @@ export default {
 
 .calendar-days div.selected-date {
   background-color: #536555;
+  color: #fff;
+  border-radius: 50%;
+}
+
+.calendar-days div.created-date {
+  background-color: rgb(128, 128, 128);
   color: #fff;
   border-radius: 50%;
 }

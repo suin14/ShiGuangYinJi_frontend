@@ -278,6 +278,29 @@ export async function getUserDocumentCreationTimes() {
     }
 }
 
+// 获取用户所选日期的文章
+export async function getDocsByDate(date) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/list_docs_by_date/${date}/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('获取文章失败:', error);
+        throw error;
+    }
+}
+
 
 
 

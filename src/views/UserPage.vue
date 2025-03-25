@@ -10,8 +10,7 @@ import {
   UpdateUserProfile,
   GetUserAvatar,
   getUserDocuments,
-  deleteUserDocument,
-  getUserDocumentCreationTimes
+  deleteUserDocument, getDocsByDate,
 } from "@/api/api.js";
 
 const switchView = (view) => {
@@ -39,16 +38,8 @@ const changeUserInfo = ref({
 });
 
 const documents = ref([]);
-const createdAtList = ref([]);
 
 onMounted(async () => {
-  try {
-    createdAtList.value = await getUserDocumentCreationTimes();  // 获取文档创建时间
-    console.log(createdAtList.value)
-  } catch (error) {
-    console.error('获取创建时间失败:', error);
-  }
-
   const profileData = await GetUserProfile();
   userInfo.value.name = profileData.nickname;
   userInfo.value.intro = profileData.introduction;
@@ -56,7 +47,6 @@ onMounted(async () => {
   userInfo.value.fans = profileData.fans_count;
   const avatarData = await GetUserAvatar();
   userInfo.value.avatar = avatarData.avatar_url
-  // console.log(userInfo.value);
 
   try {
     const res = await getUserDocuments();
@@ -147,6 +137,33 @@ const handleEditDocument = (doc) => {
     }
   });
 };
+
+
+const selectedDate = ref({
+  year: 0,
+  month: 0,
+  date: 0
+});
+
+async function selectedDocsByDate(date) {
+  if (typeof date === "object" && date.year && date.month && date.date) {
+    date.month = date.month + 1;
+    date = `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.date).padStart(2, "0")}`;
+  }
+  console.log("请求日期:", date);
+  try {
+    const res = await getDocsByDate(date);
+    if (res.success) {
+      documents.value = res.data;
+      console.log(res.data)
+    } else {
+      alert("搜索失败，请稍后重试");
+    }
+  } catch (error) {
+    console.error("请求出错:", error);
+    alert("无法搜索文档，请检查网络");
+  }
+}
 </script>
 
 
@@ -166,7 +183,10 @@ const handleEditDocument = (doc) => {
       <div class="left-box-content">
         <div v-if="currentView === '我的'" class="my-content">
           <div class="calendar-container">
-            <Calendar />
+            <Calendar v-model="selectedDate" @update:modelValue="selectedDocsByDate" />
+
+<!--            <p>选中的日期：{{ selectedDate.year }}-{{ selectedDate.month + 1 }}-{{ selectedDate.date }}</p>-->
+
           </div>
 
           <div class="cards-container">
@@ -181,7 +201,6 @@ const handleEditDocument = (doc) => {
                 <h3 class="card-title">{{ doc.title }}</h3>
                 <span>{{ doc.content }}</span>
               </div>
-
 
             </div>
           </div>
