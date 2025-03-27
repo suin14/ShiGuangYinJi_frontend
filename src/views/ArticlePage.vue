@@ -3,26 +3,26 @@
     <!-- 页面内容 -->
     <div class="content-container">
       <!-- 左侧图片部分，如果有图片则显示图片 -->
-      <div v-if="cardData.imageSrc" class="image-section">
-        <img :src="cardData.imageSrc" alt="文章图片" />
-      </div>
+<!--      <div v-if="articleData.imageSrc" class="image-section">-->
+<!--        <img :src="articleData.imageSrc" alt="文章图片" />-->
+<!--      </div>-->
 
       <!-- 右侧的文章内容 -->
       <div class="text-section">
         <!-- 用户头像和用户名 -->
         <div class="header">
-          <img :src="cardData.userAvatar" alt="用户头像" class="avatar" />
-          <span class="user-name">{{ cardData.userName }}</span>
+          <img :src="`${authorData.avatar_url}`" alt="作者头像" class="avatar" />
+          <span class="user-name">{{ authorData.nickname }}</span>
           <button @click="toggleFollow" class="follow-button">
             {{ isFollowing ? '已关注' : '关注' }}
           </button>
         </div>
 
         <!-- 文章标题 -->
-        <h2 class="article-title">{{ cardData.title }}</h2>
+        <h2 class="article-title">{{ title }}</h2>
 
         <!-- 文章内容 -->
-        <div class="article-content">{{ cardData.content }}</div>
+        <div class="article-content" v-html="content"></div>
 
         <!-- 点赞和收藏按钮 -->
         <div class="action-buttons">
@@ -57,16 +57,19 @@
 
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import testImage from "@/assets/test.jpg";
+import { useRoute } from "vue-router";
+import {getDocById, GetUserById, GetUserProfile} from "@/api/api.js";
 
-const cardData = {
+const route = useRoute();
+const articleData = ref({
   imageSrc: testImage,
-  userAvatar: testImage,
-  userName: 'Jane Doe',
-  title: '文章标题',
-  content: '这是文章的内容部分...',
-};
+  userAvatar: testImage,  // 提供默认头像，避免 undefined
+  userName: '加载中...',
+});
+const title = ref('');
+const content = ref('');
 
 const likes = ref(0);
 const collects = ref(0);
@@ -107,14 +110,38 @@ const addComment = () => {
     newComment.value = '';
   }
 };
+
+let authorData = ref()
+
+onMounted(async () => {
+  try {
+    const docId = route.query.id;
+    const res = await getDocById(docId);
+
+    if (res && res.data) {
+      title.value = res.data.title || '无标题';
+      content.value = res.data.content || '暂无内容';
+      articleData.value.userAvatar = res.data.userAvatar || testImage;
+      articleData.value.userName = res.data.userName || '匿名用户';
+    }
+
+    authorData = await GetUserById(res.data.owner_id)
+    console.log(authorData)
+  } catch (error) {
+    console.error("加载文章失败", error);
+  }
+
+
+
+});
 </script>
+
 
 <style scoped>
 .page-container {
   padding: 20px;
   width: 180vh;
   margin: 0 auto;
-  //font-family: 'Arial', sans-serif;
 }
 
 .content-container {
@@ -142,6 +169,7 @@ const addComment = () => {
   height: auto;
   display: flex;
   flex-direction: column;
+  width: 200px;
 }
 
 .header {
@@ -167,7 +195,7 @@ const addComment = () => {
 }
 
 .article-content {
-  font-size: 1em;
+  font-size: 0.5em;
   margin: 15px 0;
   line-height: 1.6;
 }

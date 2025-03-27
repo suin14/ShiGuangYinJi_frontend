@@ -50,7 +50,7 @@ const routes = [
                 component: () => import('@/views/AgentPage.vue')
             },
             {
-                path: 'card',
+                path: 'doc',
                 name: '文章页面',
                 component: () => import('@/views/ArticlePage.vue')
             }

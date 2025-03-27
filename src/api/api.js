@@ -301,6 +301,51 @@ export async function getDocsByDate(date) {
     }
 }
 
+export async function getDocById(docId) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/get_document/${docId}/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('获取文档失败:', error);
+        throw error;
+    }
+}
+
+
+// 根据id获取用户信息
+export async function GetUserById(userId) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `usermanage/user/${userId}/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('获取用户信息失败:', error);
+        throw error;
+    }
+}
 
 
 

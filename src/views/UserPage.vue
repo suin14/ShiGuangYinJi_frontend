@@ -164,6 +164,16 @@ async function selectedDocsByDate(date) {
     alert("无法搜索文档，请检查网络");
   }
 }
+
+const gotoArticle = (doc) => {
+  console.log(doc.id)
+  router.push({
+    name: '文章页面',
+    query: {
+      id: doc.id
+    }
+  });
+}
 </script>
 
 
@@ -184,9 +194,7 @@ async function selectedDocsByDate(date) {
         <div v-if="currentView === '我的'" class="my-content">
           <div class="calendar-container">
             <Calendar v-model="selectedDate" @update:modelValue="selectedDocsByDate" />
-
 <!--            <p>选中的日期：{{ selectedDate.year }}-{{ selectedDate.month + 1 }}-{{ selectedDate.date }}</p>-->
-
           </div>
 
           <div class="cards-container">
@@ -194,6 +202,7 @@ async function selectedDocsByDate(date) {
 <!--              <img :src="card.imageSrc" alt="Card Image" class="card-image" />-->
               <div class="card-btn">
                 <img src="@/assets/icon/edit.svg" alt="" @click="handleEditDocument(doc)">
+                <img src="@/assets/icon/search.svg" alt="" @click="gotoArticle(doc)">
                 <img src="@/assets/icon/close.svg" alt="" @click="handleDeleteDocument(doc.id)">
               </div>
 
