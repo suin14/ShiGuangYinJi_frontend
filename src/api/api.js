@@ -440,7 +440,75 @@ export const getUserLikeStatus = async (docId) => {
     }
 };
 
+// 收藏文章
+export const addFavorite = async (docId) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
 
+        const response = await service({
+            method: 'post',
+            url: `/docs/${docId}/favorite/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('收藏文章失败:', error);
+        throw error;
+    }
+};
+
+// 检查用户是否已收藏
+export const checkUserFavorite = async (docId) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/${docId}/favorite/check/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('检查收藏状态失败:', error);
+        throw error;
+    }
+};
+
+
+//获取用户收藏的所有文章
+export const getUserFavorites = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/favorites/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('获取收藏列表失败:', error);
+        throw error;
+    }
+};
 
 
 

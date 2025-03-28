@@ -10,7 +10,7 @@ import {
   UpdateUserProfile,
   GetUserAvatar,
   getUserDocuments,
-  deleteUserDocument, getDocsByDate,
+  deleteUserDocument, getDocsByDate, getUserFavorites, GetUserById, getDocById,
 } from "@/api/api.js";
 
 const switchView = (view) => {
@@ -38,6 +38,8 @@ const changeUserInfo = ref({
 });
 
 const documents = ref([]);
+const favorites = ref([]);
+const favoriteDocs = ref([]);
 
 onMounted(async () => {
   const profileData = await GetUserProfile();
@@ -58,7 +60,34 @@ onMounted(async () => {
   } catch (error) {
     alert("无法获取文档，请检查网络");
   }
+
+  try {
+    const res = await getUserFavorites();
+    if (res.success) {
+      favorites.value = res.favorites
+      await loadFavoriteDocs()
+      // console.log(favorites.value)
+    } else {
+      alert("获取文档失败，请稍后重试");
+    }
+  } catch (error) {
+    alert("无法获取文档，请检查网络");
+  }
 });
+
+
+async function loadFavoriteDocs() {
+  if (!favorites.value.length) return;
+
+  try {
+    favoriteDocs.value = await Promise.all(
+        favorites.value.map(doc => getDocById(doc.id))
+    );
+    console.log(favoriteDocs.value[0].data)
+  } catch (error) {
+    console.error("获取收藏文章失败:", error);
+  }
+}
 
 const saveUserInfo = () => {
   isEditing.value = false;
@@ -165,15 +194,16 @@ async function selectedDocsByDate(date) {
   }
 }
 
-const gotoArticle = (doc) => {
-  console.log(doc.id)
+const gotoArticle = (docId) => {
+  console.log(docId)
   router.push({
     name: '文章页面',
     query: {
-      id: doc.id
+      id: docId
     }
   });
 }
+
 </script>
 
 
@@ -202,7 +232,7 @@ const gotoArticle = (doc) => {
 <!--              <img :src="card.imageSrc" alt="Card Image" class="card-image" />-->
               <div class="card-btn">
                 <img src="@/assets/icon/edit.svg" alt="" @click="handleEditDocument(doc)">
-                <img src="@/assets/icon/search.svg" alt="" @click="gotoArticle(doc)">
+                <img src="@/assets/icon/search.svg" alt="" @click="gotoArticle(doc.id)">
                 <img src="@/assets/icon/close.svg" alt="" @click="handleDeleteDocument(doc.id)">
               </div>
 
@@ -250,26 +280,23 @@ const gotoArticle = (doc) => {
           </div>
         </div>
 
-<!--        <div v-if="currentView === '收藏'">-->
-<!--          <div class="cards-container">-->
-<!--            <div v-for="(card, index) in cards" :key="index" class="content-card">-->
+        <div v-if="currentView === '收藏'">
+          <div class="cards-container" >
+            <div v-for="(fav, index) in favoriteDocs" :key="index" class="content-card" @click="gotoArticle(fav.data.id)">
 <!--              <img :src="card.imageSrc" alt="Card Image" class="card-image" />-->
-
 <!--              <div class="card-content">-->
-<!--                <span>{{ card.content }}</span>-->
+<!--                <span>{{ fav.data.content }}</span>-->
 <!--              </div>-->
-
-<!--              <div class="card-details">-->
-<!--                <h3 class="card-title">{{ card.title }}</h3>-->
-
-<!--                <div class="card-header">-->
+              <div class="card-details">
+                <h3 class="card-title">{{ fav.data.title }}</h3>
+                <div class="card-header">
 <!--                  <img v-if="userInfo.avatar" :src="userInfo.avatar" alt="用户头像" />-->
-<!--                  <span class="user-name">{{ card.userName }}</span>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
+<!--                  <span class="user-name">{{ getUserName(fav.data.owner_id) }}</span>-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -439,7 +466,6 @@ const gotoArticle = (doc) => {
   overflow-y: auto;
   max-height: 65vh;
   padding-bottom: 5px;
-
 }
 
 .content-card {
@@ -454,7 +480,7 @@ const gotoArticle = (doc) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 550px;
+  max-width: 510px;
 }
 
 .card-image {

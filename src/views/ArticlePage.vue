@@ -32,8 +32,11 @@
           <button @click="like" class="like-button" v-if="isLiked" style="background-color: #b8dec1">
             <img src="@/assets/icon/like.svg" alt="点赞" /> 点赞 {{ likes }}
           </button>
-          <button @click="collect" class="collect-button">
-            <img src="@/assets/icon/collect.svg" alt="收藏" /> 收藏 {{ collects }}
+          <button @click="collect" class="collect-button" v-if="!isFavorited">
+            <img src="@/assets/icon/collect.svg" alt="收藏" /> 收藏
+          </button>
+          <button @click="collect" class="collect-button" v-if="isFavorited" style="background-color: #ffdead">
+            <img src="@/assets/icon/collect.svg" alt="收藏" /> 收藏
           </button>
         </div>
 
@@ -60,10 +63,18 @@
 
 
 <script setup>
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, ref} from 'vue';
 import testImage from "@/assets/test.jpg";
-import { useRoute } from "vue-router";
-import {getUserLikeStatus, getDocById, getDocLikeCount, GetUserById, GetUserProfile, likeDoc} from "@/api/api.js";
+import {useRoute} from "vue-router";
+import {
+  addFavorite,
+  checkUserFavorite,
+  getDocById,
+  getDocLikeCount,
+  GetUserById,
+  getUserLikeStatus,
+  likeDoc
+} from "@/api/api.js";
 
 const route = useRoute();
 const articleData = ref({
@@ -75,10 +86,10 @@ const title = ref('');
 const content = ref('');
 
 const likes = ref(0);
-const collects = ref(0);
 const newComment = ref('');
 const isFollowing = ref(false);
 const isLiked = ref(false);
+const isFavorited = ref(false);
 const comments = ref([
   {
     userName: 'Alice',
@@ -110,10 +121,15 @@ const like = async () => {
     } catch (error) {
       console.error('点赞失败:', error);
     }
-
 };
-const collect = () => {
-  collects.value++;
+const collect = async () => {
+  try {
+    const docId = route.query.id;
+    await addFavorite(docId);
+    isFavorited.value = !isFavorited.value;
+  } catch (error) {
+    console.error('收藏失败:', error);
+  }
 };
 
 const addComment = () => {
@@ -147,10 +163,10 @@ onMounted(async () => {
 
     const likesRes = await getDocLikeCount(docId)
     likes.value = likesRes.like_count
+    isLiked.value = await getUserLikeStatus(docId)
 
-
-    const checkLikeRes = await getUserLikeStatus(docId)
-    isLiked.value = checkLikeRes
+    const checkUserFavoriteRes = await checkUserFavorite(docId)
+    isFavorited.value = checkUserFavoriteRes.is_favorited
   } catch (error) {
     console.error("加载文章失败", error);
   }
