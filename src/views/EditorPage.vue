@@ -210,16 +210,16 @@ const discard = () => {
 
 <template>
   <div class="container">
-    <div class="left-box">
-      <div class="left-box-navi">
-        <span @click="switchView('预览')" :class="{ active: currentView === '预览' }">预览</span> |
-        <span @click="switchView('版式')" :class="{ active: currentView === '版式' }">版式</span>
-      </div>
-      <div class="left-box-content">
-        <div v-if="currentView === '预览'">预览内容</div>
-        <div v-if="currentView === '版式'">模板内容</div>
-      </div>
-    </div>
+<!--    <div class="left-box">-->
+<!--      <div class="left-box-navi">-->
+<!--        <span @click="switchView('预览')" :class="{ active: currentView === '预览' }">预览</span> |-->
+<!--        <span @click="switchView('版式')" :class="{ active: currentView === '版式' }">版式</span>-->
+<!--      </div>-->
+<!--      <div class="left-box-content">-->
+<!--        <div v-if="currentView === '预览'">预览内容</div>-->
+<!--        <div v-if="currentView === '版式'">模板内容</div>-->
+<!--      </div>-->
+<!--    </div>-->
     <div class="main-box">
       <div class="editor-container">
         <input type="text" v-model="title" class="article-title" placeholder="标题" />
@@ -233,9 +233,9 @@ const discard = () => {
           <button @click="saveDraft" class="btn-icon">
             <img :src="saveIcon" alt="保存" />
           </button>
-          <button @click="discard" class="btn-icon">
-            <img :src="deleteIcon" alt="丢弃" />
-          </button>
+<!--          <button @click="discard" class="btn-icon">-->
+<!--            <img :src="deleteIcon" alt="丢弃" />-->
+<!--          </button>-->
         </div>
 
         <div v-if="showDialog" class="dialog-overlay">
@@ -319,7 +319,7 @@ const discard = () => {
   border: 1.1px solid #ccc;
   height: 72vh;
   background-color: #f6f6f6;
-  width: 126vh;
+  width: 173vh;
 }
 .main-box :deep(.ql-toolbar) {
   border: 1.1px solid #ccc;

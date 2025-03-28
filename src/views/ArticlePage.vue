@@ -8,10 +8,10 @@
 <!--      </div>-->
 
       <!-- 右侧的文章内容 -->
-      <div class="text-section">
+      <div class="text-section" >
         <!-- 用户头像和用户名 -->
         <div class="header">
-          <img :src="`${authorData.avatar_url}`" alt="作者头像" class="avatar" />
+          <img :src="authorData.avatar_url" alt="作者头像" class="avatar" />
           <span class="user-name">{{ authorData.nickname }}</span>
           <button @click="toggleFollow" class="follow-button">
             {{ isFollowing ? '已关注' : '关注' }}
@@ -57,10 +57,11 @@
 
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import testImage from "@/assets/test.jpg";
 import { useRoute } from "vue-router";
-import {getDocById, GetUserById, GetUserProfile} from "@/api/api.js";
+import {getDocById, getDocLikeCount, GetUserById, GetUserProfile, likeDoc} from "@/api/api.js";
+import { nextTick } from 'vue';
 
 const route = useRoute();
 const articleData = ref({
@@ -75,6 +76,7 @@ const likes = ref(0);
 const collects = ref(0);
 const newComment = ref('');
 const isFollowing = ref(false);
+const isLiked = ref(false);
 const comments = ref([
   {
     userName: 'Alice',
@@ -92,10 +94,18 @@ const toggleFollow = () => {
   isFollowing.value = !isFollowing.value;
 };
 
-const like = () => {
-  likes.value++;
+const like = async () => {
+  if (!isLiked.value) {
+    try {
+      const docId = route.query.id;
+      await likeDoc(docId);
+      likes.value++;
+      isLiked.value = true;
+    } catch (error) {
+      console.error('点赞失败:', error);
+    }
+  }
 };
-
 const collect = () => {
   collects.value++;
 };
@@ -111,7 +121,7 @@ const addComment = () => {
   }
 };
 
-let authorData = ref()
+const authorData = ref({});
 
 onMounted(async () => {
   try {
@@ -121,19 +131,26 @@ onMounted(async () => {
     if (res && res.data) {
       title.value = res.data.title || '无标题';
       content.value = res.data.content || '暂无内容';
-      articleData.value.userAvatar = res.data.userAvatar || testImage;
-      articleData.value.userName = res.data.userName || '匿名用户';
     }
 
-    authorData = await GetUserById(res.data.owner_id)
-    console.log(authorData)
+    const authorRes = await GetUserById(res.data.owner_id);
+    if (authorRes) {
+      authorData.value = authorRes;
+    }
+    // console.log(authorData.value)
+
+    const likesRes = await getDocLikeCount(docId)
+    likes.value = likesRes.like_count
+    console.log(likes)
   } catch (error) {
     console.error("加载文章失败", error);
   }
 
-
-
 });
+
+// watch(authorData, (newVal, oldVal) => {
+//   console.log('authorData 更新了:', newVal);
+// });
 </script>
 
 
@@ -176,6 +193,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
+  user-select: none;
 }
 
 .avatar {

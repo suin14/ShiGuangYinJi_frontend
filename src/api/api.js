@@ -1,5 +1,6 @@
 import service from "@/api/service.js";
 import router from "@/router/index.js";
+import axios from "axios";
 
 // 注册
 export function Register(data) {
@@ -347,6 +348,76 @@ export async function GetUserById(userId) {
     }
 }
 
+export const hasLiked = async (docId) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/${docId}/like/check/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('检查是否已点赞失败:', error);
+        throw error;
+    }
+};
+
+// 点赞文章
+export const likeDoc = async (docId) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'post',
+            url: `/docs/${docId}/like/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('点赞文章失败:', error);
+        throw error;
+    }
+};
+
+// 查询点赞数量
+export const getDocLikeCount = async (docId) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/${docId}/like/count/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('获取点赞数失败:', error);
+        throw error;
+    }
+};
+
+
+
 
 
 //开始智能体对话
@@ -386,3 +457,5 @@ export async function AichatAsk(question, user, conversation_id) {
         throw error;
     }
 }
+
+
