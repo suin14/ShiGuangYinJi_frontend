@@ -132,7 +132,7 @@ const handleEditDocument = (doc) => {
     name: '文档编辑器',
     query: {
       id: doc.id,
-      title: encodeURIComponent(doc.title),
+      title: doc.title,
       content: encodeURIComponent(doc.content)
     }
   });

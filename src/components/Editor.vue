@@ -60,8 +60,6 @@ const props = defineProps({
 const emit = defineEmits(['update:value']);
 
 const content = ref(props.value.content);
-
-
 const articleTitle = ref(props.title);
 const isListening = ref(false);
 const quillEditor = ref(null);
@@ -154,6 +152,7 @@ onMounted(() => {
   if (route.query.title) {
     articleTitle.value = route.query.title;
   }
+
   if (route.query.content) {
     content.value = route.query.content;
   }
