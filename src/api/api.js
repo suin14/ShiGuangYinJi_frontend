@@ -417,6 +417,30 @@ export const getDocLikeCount = async (docId) => {
 };
 
 
+// 查询是否点赞
+export const getUserLikeStatus = async (docId) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/${docId}/like/check/`,  // API 路径
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data.is_liked;  // 只返回点赞状态
+    } catch (error) {
+        console.error('获取用户点赞状态失败:', error);
+        throw error;
+    }
+};
+
+
 
 
 

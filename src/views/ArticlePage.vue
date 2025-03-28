@@ -26,7 +26,10 @@
 
         <!-- 点赞和收藏按钮 -->
         <div class="action-buttons">
-          <button @click="like" class="like-button">
+          <button @click="like" class="like-button" v-if="!isLiked">
+            <img src="@/assets/icon/like.svg" alt="点赞" /> 点赞 {{ likes }}
+          </button>
+          <button @click="like" class="like-button" v-if="isLiked" style="background-color: #b8dec1">
             <img src="@/assets/icon/like.svg" alt="点赞" /> 点赞 {{ likes }}
           </button>
           <button @click="collect" class="collect-button">
@@ -60,8 +63,7 @@
 import {onMounted, ref, watch} from 'vue';
 import testImage from "@/assets/test.jpg";
 import { useRoute } from "vue-router";
-import {getDocById, getDocLikeCount, GetUserById, GetUserProfile, likeDoc} from "@/api/api.js";
-import { nextTick } from 'vue';
+import {getUserLikeStatus, getDocById, getDocLikeCount, GetUserById, GetUserProfile, likeDoc} from "@/api/api.js";
 
 const route = useRoute();
 const articleData = ref({
@@ -95,16 +97,20 @@ const toggleFollow = () => {
 };
 
 const like = async () => {
-  if (!isLiked.value) {
     try {
       const docId = route.query.id;
       await likeDoc(docId);
-      likes.value++;
-      isLiked.value = true;
+      if (!isLiked.value) {
+        likes.value++;
+        isLiked.value = true;
+      } else {
+        likes.value--;
+        isLiked.value = false
+      }
     } catch (error) {
       console.error('点赞失败:', error);
     }
-  }
+
 };
 const collect = () => {
   collects.value++;
@@ -141,7 +147,10 @@ onMounted(async () => {
 
     const likesRes = await getDocLikeCount(docId)
     likes.value = likesRes.like_count
-    console.log(likes)
+
+
+    const checkLikeRes = await getUserLikeStatus(docId)
+    isLiked.value = checkLikeRes
   } catch (error) {
     console.error("加载文章失败", error);
   }
@@ -225,10 +234,10 @@ onMounted(async () => {
 }
 
 .like-button,
-.collect-button {
+.collect-button,
+.unlike-button {
   display: flex;
   align-items: center;
-  background-color: #f0f0f0;
   border: none;
   font-size: 1em;
   cursor: pointer;
@@ -236,6 +245,15 @@ onMounted(async () => {
   border-radius: 4px;
   color: #555;
   transition: background-color 0.2s;
+}
+
+.like-button,
+.collect-button {
+  background-color: #f0f0f0;
+}
+
+.unlike-button {
+  background-color: rgba(104, 143, 113, 0.74);
 }
 
 .like-button img,
