@@ -11,7 +11,7 @@
       <div class="text-section" >
         <!-- 用户头像和用户名 -->
         <div class="header">
-          <img :src="authorData.avatar_url" alt="作者头像" class="avatar" />
+          <img :src="authorData.avatar_url" alt="作者头像" class="avatar"/>
           <span class="user-name">{{ authorData.nickname }}</span>
           <button @click="toggleFollow" class="follow-button">
             {{ isFollowing ? '已关注' : '关注' }}
@@ -46,8 +46,8 @@
             <li v-for="(comment, index) in comments" :key="index" class="comment-item">
               <div class="comment-content">
                 <div class="comment-header">
-                  <img :src="comment.userAvatar" alt="用户头像" class="comment-avatar" />
-                  <span class="comment-user-name">{{ comment.userName }}</span>
+                  <img :src="comment.avatar_url" alt="用户头像" class="comment-avatar" />
+                  <span class="comment-user-name">{{ comment.nickname }}</span>
                 </div>
                 <p class="comment-text">{{ comment.content }}</p>
               </div>
@@ -68,13 +68,14 @@ import testImage from "@/assets/test.jpg";
 import {useRoute} from "vue-router";
 import {
   addFavorite,
-  checkUserFavorite,
+  checkUserFavorite, getArticleComments,
   getDocById,
   getDocLikeCount,
   GetUserById,
   getUserLikeStatus,
-  likeDoc
+  likeDoc, postArticleComment
 } from "@/api/api.js";
+import router from "@/router/index.js";
 
 const route = useRoute();
 const articleData = ref({
@@ -90,18 +91,7 @@ const newComment = ref('');
 const isFollowing = ref(false);
 const isLiked = ref(false);
 const isFavorited = ref(false);
-const comments = ref([
-  {
-    userName: 'Alice',
-    userAvatar: testImage,
-    content: '这是一个很有帮助的文章！'
-  },
-  {
-    userName: 'Bob',
-    userAvatar: testImage,
-    content: '感谢分享！非常有用。'
-  }
-]);
+const comments = ref([]);
 
 const toggleFollow = () => {
   isFollowing.value = !isFollowing.value;
@@ -132,16 +122,6 @@ const collect = async () => {
   }
 };
 
-const addComment = () => {
-  if (newComment.value.trim()) {
-    comments.value.push({
-      userName: 'User',
-      userAvatar: testImage,
-      content: newComment.value.trim()
-    });
-    newComment.value = '';
-  }
-};
 
 const authorData = ref({});
 
@@ -167,15 +147,72 @@ onMounted(async () => {
 
     const checkUserFavoriteRes = await checkUserFavorite(docId)
     isFavorited.value = checkUserFavoriteRes.is_favorited
+
+    await loadComments(docId)
+    console.log(comments)
   } catch (error) {
     console.error("加载文章失败", error);
   }
 
 });
 
-// watch(authorData, (newVal, oldVal) => {
-//   console.log('authorData 更新了:', newVal);
-// });
+// 跳转作者主页
+const gotoUser = (userId) => {
+  console.log(userId)
+  router.push({
+    name: '个人主页',
+    query: {
+      id: userId
+    }
+  });
+}
+
+async function loadComments(docId) {
+  try {
+    const commentsRes = await getArticleComments(docId);
+    comments.value = commentsRes.comments;
+    await addUserInfoToComments();
+    console.log(comments.value);
+  } catch (error) {
+    console.error("加载评论失败");
+  }
+}
+
+const addUserInfoToComments = async () => {
+  for (const comment of comments.value) {
+    try {
+      const userInfo = await GetUserById(comment.user_id);
+      comment.nickname = userInfo.nickname;
+      comment.avatar_url = userInfo.avatar_url;
+    } catch (error) {
+      console.error(`获取用户 ${comment.user_id} 信息失败`, error);
+    }
+  }
+};
+
+async function submitComment(docId, content) {
+    const newComment = await postArticleComment(docId, content);
+    console.log("成功提交评论:", newComment);
+}
+
+
+const addComment = async () => {
+  if (newComment.value.trim()) {
+    const docId = route.query.id;
+    const content = newComment.value.trim();
+
+    const response = await submitComment(docId, content);
+
+    const commentsRes = await getArticleComments(docId);
+    comments.value = commentsRes.comments;
+
+    newComment.value = '';
+
+    window.location.reload()
+  }
+};
+
+
 </script>
 
 

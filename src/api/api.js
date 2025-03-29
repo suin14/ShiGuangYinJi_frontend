@@ -511,6 +511,39 @@ export const getUserFavorites = async () => {
 };
 
 
+//获取文章评论列表
+export async function getArticleComments(docId) {
+    try {
+        const res = await service({
+            method: 'get',
+            url: `/docs/${docId}/comments/`,
+        });
+        return res.data;
+    } catch (error) {
+        console.error("获取评论失败:", error);
+        throw error;
+    }
+}
+
+// 提交文章评论
+export async function postArticleComment(docId, content) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        throw new Error('请先登录');
+    }
+
+    const res = await service({
+        method: 'post',
+        url: `/docs/${docId}/comments/`,
+        data: { content },
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
+}
+
+
 
 //开始智能体对话
 export async function AichatStart() {
