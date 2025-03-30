@@ -175,7 +175,7 @@ const confirmSubmit = async () => {
       content: contentHTML
     });
     if (response.success) {
-      alert(`文章已更新，状态：${selectedOption.value === 'public' ? '公开' : '私密'}`);
+      alert(`文章已更新`);
     } else {
       alert('更新失败，请重试');
     }
@@ -188,7 +188,7 @@ const confirmSubmit = async () => {
     const response = await createDocument(title, contentHTML);
 
     if (response.success) {
-      alert(`文章已提交，状态：${selectedOption.value === 'public' ? '公开' : '私密'}`);
+      alert(`文章已提交`);
     } else {
       alert('提交失败，请重试');
     }
@@ -227,7 +227,7 @@ const discard = () => {
         <QuillEditor ref="quillEditor" content-type="html" v-model:content="content" :options="editorOption" />
 
         <div class="btn-container">
-          <button @click="openDialog" class="btn-icon">
+          <button @click="confirmSubmit" class="btn-icon">
             <img :src="commitIcon" alt="提交" />
           </button>
           <button @click="saveDraft" class="btn-icon">

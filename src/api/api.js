@@ -106,6 +106,27 @@ export async function GetUserProfile() {
 }
 
 
+// 搜索文档
+export async function SearchDocuments(query) {
+    try {
+        if (!query.trim()) {
+            throw new Error("搜索关键字不能为空！");
+        }
+
+        const response = await service({
+            method: 'get',
+            url: '/docs/search/',
+            params: { q: query }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("搜索文档时出错：", error);
+        alert("搜索失败，请稍后重试！");
+        throw error;
+    }
+}
+
 // 更新个人资料
 export async function UpdateUserProfile(nickname, introduction, avatar) {
     try {
@@ -348,28 +369,6 @@ export async function GetUserById(userId) {
     }
 }
 
-export const hasLiked = async (docId) => {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('请先登录');
-        }
-
-        const response = await service({
-            method: 'get',
-            url: `/docs/${docId}/like/check/`,
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        return response.data;
-    } catch (error) {
-        console.error('检查是否已点赞失败:', error);
-        throw error;
-    }
-};
-
 // 点赞文章
 export const likeDoc = async (docId) => {
     try {
@@ -543,6 +542,28 @@ export async function postArticleComment(docId, content) {
     return res.data;
 }
 
+
+export async function GetRandomDocuments(count = 10) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
+        const response = await service({
+            method: 'get',
+            url: `/docs/random-docs/`,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('获取随机文档失败:', error);
+        throw error;
+    }
+}
 
 
 //开始智能体对话

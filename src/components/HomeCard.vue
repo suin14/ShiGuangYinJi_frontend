@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <img :src="imageSrc" alt="image" class="card-image" />
+<!--    <img :src="imageSrc" alt="image" class="card-image" />-->
     <div class="card-content">
       <h3 class="card-title">{{ title }}</h3>
       <div class="user-info">
@@ -15,10 +15,6 @@
 export default {
   name: 'UserCard',
   props: {
-    imageSrc: {
-      type: String,
-      required: true
-    },
     title: {
       type: String,
       required: true

@@ -13,9 +13,9 @@
         <div class="header">
           <img :src="authorData.avatar_url" alt="作者头像" class="avatar"/>
           <span class="user-name">{{ authorData.nickname }}</span>
-          <button @click="toggleFollow" class="follow-button">
-            {{ isFollowing ? '已关注' : '关注' }}
-          </button>
+<!--          <button @click="toggleFollow" class="follow-button">-->
+<!--            {{ isFollowing ? '已关注' : '关注' }}-->
+<!--          </button>-->
         </div>
 
         <!-- 文章标题 -->

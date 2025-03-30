@@ -6,71 +6,16 @@ import vueImage from '@/assets/vue.svg';
 import testImage from "@/assets/test.jpg";
 import avatarImage from '@/assets/avatar.png';
 import router from "@/router/index.js";
+import {GetRandomDocuments, GetUserById, SearchDocuments} from "@/api/api.js";
 
 const searchInput = ref('');
 const currentView = ref('推荐');
 
 const cards = ref([
-  {
-    imageSrc: vueImage,
-    title: '欢迎来到主页',
-    userAvatar: avatarImage,
-    userName: 'Momo',
-    content: '欢迎来到我们的网站，这是一个汇聚了最新资讯和实用教程的地方，期待您的到来！'
-  },
-  {
-    imageSrc: testImage,
-    title: '开发者社区',
-    userAvatar: avatarImage,
-    userName: '张三',
-    content: '这里是开发者社区，我们致力于为开发者提供一个互相学习、共同进步的交流平台。'
-  },
-  {
-    imageSrc: vueImage,
-    title: 'Vue 3 教程',
-    userAvatar: avatarImage,
-    userName: '李四',
-    content: '在这篇文章中，我们将介绍 Vue 3 的基本用法以及如何构建更高效的前端应用程序。'
-  },
-  {
-    imageSrc: testImage,
-    title: 'JavaScript 学习',
-    userAvatar: avatarImage,
-    userName: '王五',
-    content: 'JavaScript 是现代 Web 开发的基石。本教程将帮助您掌握从基础到高级的 JavaScript 技巧。'
-  },
-  {
-    imageSrc: vueImage,
-    title: '欢迎来到主页',
-    userAvatar: avatarImage,
-    userName: 'Momo',
-    content: '欢迎来到我们的网站，这是一个汇聚了最新资讯和实用教程的地方，期待您的到来！'
-  },
-  {
-    imageSrc: testImage,
-    title: '开发者社区',
-    userAvatar: avatarImage,
-    userName: '张三',
-    content: '这里是开发者社区，我们致力于为开发者提供一个互相学习、共同进步的交流平台。'
-  },
-  {
-    imageSrc: vueImage,
-    title: 'Vue 3 教程',
-    userAvatar: avatarImage,
-    userName: '李四',
-    content: '在这篇文章中，我们将介绍 Vue 3 的基本用法以及如何构建更高效的前端应用程序。'
-  },
-  {
-    imageSrc: testImage,
-    title: 'JavaScript 学习',
-    userAvatar: avatarImage,
-    userName: '王五',
-    content: 'JavaScript 是现代 Web 开发的基石。本教程将帮助您掌握从基础到高级的 JavaScript 技巧。'
-  }
 ]);
 
 
-const topics= ref(['冬日摄影', '考研']);
+const topics= ref();
 
 const switchView = (view) => {
   currentView.value = view;
@@ -99,8 +44,45 @@ const setCardHeights = () => {
   });
 };
 
+async function fetchDocs() {
+  try {
+    const response = await GetRandomDocuments(10);
+    console.log("获取的文档:", response);
+
+    if (response && response.success && Array.isArray(response.data)) {
+      // 并发请求所有用户信息
+      const docs = response.data;
+      const userRequests = docs.map(doc => GetUserById(doc.owner_id));
+      const userResponses = await Promise.all(userRequests);
+
+      // 组合文档和用户数据
+      cards.value = docs.map((doc, index) => {
+        const user = userResponses[index];
+        return {
+          docId: doc.id,
+          title: doc.title,
+          userAvatar: user?.avatar_url || avatarImage, // 默认头像
+          userName: user?.nickname || '未知用户',
+          content: doc.content,
+        };
+      });
+    } else {
+      console.error("返回数据格式不符合预期:", response);
+    }
+  } catch (error) {
+    console.error("文档获取出错:", error);
+  }
+}
+
 // 页面加载后调整瀑布流布局
-onMounted(() => {
+onMounted(async () => {
+  try {
+    await fetchDocs();
+
+    setCardHeights();
+  } catch (error) {
+    console.error("加载推荐文档失败:", error);
+  }
   setCardHeights();
 
   window.onload = () => {
@@ -140,8 +122,45 @@ const closeCardDetail = () => {
   selectedCard.value = null;
 };
 
-function gotoArticle() {
-  router.push({ path: '/card' });
+const gotoArticle = (docId) => {
+  console.log(docId)
+  router.push({
+    name: '文章页面',
+    query: {
+      id: docId
+    }
+  });
+}
+
+async function handleSearch(keyword) {
+  try {
+    const result = await SearchDocuments(keyword);
+    console.log("搜索结果：", result);
+
+
+    if (result && result.success && Array.isArray(result.data)) {
+      // 并发请求所有用户信息
+      const docs = result.data;
+      const userRequests = docs.map(doc => GetUserById(doc.owner_id));
+      const userResponses = await Promise.all(userRequests);
+
+      // 组合文档和用户数据
+      cards.value = docs.map((doc, index) => {
+        const user = userResponses[index];
+        return {
+          docId: doc.id,
+          title: doc.title,
+          userAvatar: user?.avatar_url || avatarImage, // 默认头像
+          userName: user?.nickname || '未知用户',
+          content: doc.content,
+        };
+      });
+    } else {
+      console.error("返回数据格式不符合预期:", result);
+    }
+  } catch (error) {
+    console.error("搜索失败：", error);
+  }
 }
 </script>
 
@@ -153,21 +172,22 @@ function gotoArticle() {
           class="search-input"
           placeholder="搜索..."
           v-model="searchInput"
-          @keyup.enter=""
+          @keyup.enter="handleSearch(searchInput)"
       />
       <div class="input-button">
         <div class="close-icon" v-if="searchInput" @click="clearInput">
           <img src="@/assets/icon/close.svg" alt="关闭" />
         </div>
         <div class="search-icon">
-          <img src="@/assets/icon/search.svg" alt="搜索" />
+          <img src="@/assets/icon/search.svg" alt="搜索" @click="handleSearch(searchInput)"/>
         </div>
       </div>
     </div>
 
     <div class="content">
       <div class="top-navi">
-        <span @click="switchView('推荐')" :class="{ active: currentView === '推荐' }">推荐</span>
+        <span @click="switchView('推荐')" :class="{ active: currentView === '推荐' }">推荐
+          <img src="@/assets/icon/refresh-cw.svg" alt="搜索" style="scale: 90%" @click="fetchDocs"></span>
         <span @click="switchView('关注')" :class="{ active: currentView === '关注' }">关注</span>
         <span
             v-for="(t, index) in topics"
@@ -184,12 +204,11 @@ function gotoArticle() {
           <HomeCard
               v-for="(card, index) in cards"
               :key="index"
-              :imageSrc="card.imageSrc"
               :title="card.title"
               :userAvatar="card.userAvatar"
               :userName="card.userName"
               class="waterfall-item"
-              @click="gotoArticle"
+              @click="gotoArticle(card.docId)"
           />
           <!--@click="openCardDetail(card)"-->
         </div>
